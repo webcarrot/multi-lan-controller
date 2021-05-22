@@ -1,0 +1,32 @@
+{
+  "name": "@webcarrot/multi-lan-controller",
+  "version": "0.0.1",
+  "description": "Simple manager for multiple tinycontrol.pl lan controllers.",
+  "main": "index.js",
+  "scripts": {
+    "test": "tsc --noEmit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/webcarrot/multi-lan-controller.git"
+  },
+  "keywords": [
+    "lan",
+    "controller"
+  ],
+  "author": "Wojciech Wierchoła",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/webcarrot/multi-lan-controller/issues"
+  },
+  "homepage": "https://github.com/webcarrot/multi-lan-controller#readme",
+  "devDependencies": {
+    "@types/react": "^17.0.6",
+    "typescript": "^4.2.4"
+  },
+  "dependencies": {
+    "@webcarrot/api": "^1.8.0",
+    "@webcarrot/router": "^1.6.0",
+    "react": "^17.0.2"
+  }
+}

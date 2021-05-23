@@ -169,9 +169,10 @@ module.exports = {
   publishPack(mode = "production", alpha = true, beta = false, test = false) {
     const tag = alpha ? "alpha" : beta ? "beta" : "latest";
     execSync(
-      `npm publish ${join(__dirname, `../dist/${mode}`)} --tag ${tag} ${
-        test ? "--dry-run" : ""
-      }`
+      `npm publish ${join(
+        __dirname,
+        `../dist/${mode}`
+      )} --tag ${tag} --access public ${test ? "--dry-run" : ""}`
     );
   },
   packPack(mode = "production", alpha = true, beta = false, test = false) {

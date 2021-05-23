@@ -31,9 +31,7 @@ export const changeOut: AdminApiFunction<
             try {
               const { no, value } = devicesIdsToChange.get(device.id);
               await setOutStatus(device, no, value);
-            } catch (_) {
-              console.log("xxx");
-            }
+            } catch (_) {}
           })
       );
     })

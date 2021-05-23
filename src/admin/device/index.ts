@@ -52,9 +52,7 @@ export const setOutStatus = async (
 ) => {
   const status = await getDeviceStatus(device);
   const toChange = no.filter((no) => status.out[no] !== value);
-  console.log(no, toChange, status.out, value);
   if (toChange.length) {
-    console.log(`${device.url}/outs.cgi?out=${toChange.join("")}`);
     await axios.get<string>(
       `${device.url}/outs.cgi?out=${toChange.join("")}`,
       getConfig(device)

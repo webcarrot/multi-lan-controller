@@ -28,9 +28,7 @@ export const status: AdminApiFunction<null, ReadonlyArray<DashboardPlace>> =
                   try {
                     status = await getDeviceStatus(device);
                     isOnline = true;
-                  } catch (_) {
-                    console.error(device.name, _.message);
-                  }
+                  } catch (_) {}
                   return {
                     id: device.id,
                     name: device.name,

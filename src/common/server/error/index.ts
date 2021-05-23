@@ -9,7 +9,6 @@ type ErrorMessage = {
 export { getErrorHtml };
 
 export const errorHandler = async (ctx: Context, err: any) => {
-  console.error(err);
   let errors: ReadonlyArray<ErrorMessage> = [];
   let items: ReadonlyArray<any>;
   if (err && err.errors && err.errors instanceof Array) {

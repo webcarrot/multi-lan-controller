@@ -122,11 +122,6 @@ module.exports = {
       JSON.stringify(packageJson, null, 2)
     );
 
-    writeFileSync(
-      join(__dirname, `../dist/${mode}/.npmrc`),
-      readFileSync(join(__dirname, `../.npmrc`))
-    );
-
     const archive = archiver("zip", { zlib: { level: 0 } });
     const stream = createWriteStream(join(__dirname, `../package-${mode}.zip`));
 
@@ -158,20 +153,16 @@ module.exports = {
     );
 
     writeFileSync(
-      join(__dirname, `../dist/${mode}/.npmrc`),
-      readFileSync(join(__dirname, `../.npmrc`))
-    );
-    writeFileSync(
       join(__dirname, `../dist/${mode}/multi-lan-controller.run`),
       '#!/usr/bin/env node\nrequire("./node-server");'
     );
+
     writeFileSync(
       join(__dirname, `../dist/${mode}/README.md`),
       readFileSync(join(__dirname, "../README.md"))
     );
 
     execSync(`npm install --prefix ${join(__dirname, `../dist/${mode}`)}`);
-    unlinkSync(join(__dirname, `../dist/${mode}/.npmrc`));
 
     return packageJson.version;
   },

@@ -21,7 +21,6 @@ export const getUser = async (
     const user = await getUserById(dbAccess, ctx.session.userId);
     if (!user) {
       ctx.session = null;
-      ctx.session.save();
     }
     return user;
   }
@@ -76,6 +75,5 @@ export const authHandler = async (
 
 export const signOutHandler = async (ctx: Context) => {
   ctx.session = null;
-  ctx.session.save();
   ctx.redirect("/");
 };

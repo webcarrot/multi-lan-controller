@@ -81,6 +81,11 @@ const MENU_ITEMS: Array<{
     label: "Users",
     Icon: React.memo(() => <Icon>manage_accounts</Icon>),
   },
+  {
+    route: "settings",
+    label: "Settings",
+    Icon: React.memo(() => <Icon>settings</Icon>),
+  },
 ];
 
 export const Navigation = React.memo(() => {

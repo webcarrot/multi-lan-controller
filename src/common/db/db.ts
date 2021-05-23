@@ -6,6 +6,34 @@ const EMPTY_DB: Db = {
   devices: [],
   places: [],
   users: [],
+  settings: {
+    out: [
+      {
+        isActive: false,
+        name: "OUT0",
+      },
+      {
+        isActive: false,
+        name: "OUT1",
+      },
+      {
+        isActive: false,
+        name: "OUT2",
+      },
+      {
+        isActive: false,
+        name: "OUT3",
+      },
+      {
+        isActive: false,
+        name: "OUT4",
+      },
+      {
+        isActive: false,
+        name: "OUT5",
+      },
+    ],
+  },
 };
 
 export const makeDbAccess = async (databaseDir: string): Promise<DbAccess> => {
@@ -30,7 +58,10 @@ export const makeDbAccess = async (databaseDir: string): Promise<DbAccess> => {
       JSON.parse(
         await promises.readFile(join(databaseDir, "index.json"), "utf8")
       )
-    );
+    ).then((db) => ({
+      ...EMPTY_DB,
+      ...db,
+    }));
   } catch (_) {
     dbPromise = Promise.resolve<Db>(EMPTY_DB);
     await promises.writeFile(

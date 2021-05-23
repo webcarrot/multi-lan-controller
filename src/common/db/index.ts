@@ -7,3 +7,4 @@ export {
   login as loginUser,
   getById as getUserById,
 } from "./users";
+export { read as readSettings, save as saveSettings } from "./settings";

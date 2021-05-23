@@ -6,4 +6,5 @@ export const action: Action = async (payload, {}, { adminApi }) => ({
   status: 200 as Success,
   title: "Multi Lan Controller",
   dashboards: await adminApi("Dashboard/Status", null),
+  settings: await adminApi("Settings/Read", null),
 });

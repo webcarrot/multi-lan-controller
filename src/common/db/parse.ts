@@ -9,7 +9,7 @@ import {
   oneOf,
 } from "@webcarrot/parse";
 import { validate } from "uuid";
-import type { Device, Place, User } from "./types";
+import { Device, OutSetting, Place, Settings, User } from "./types";
 
 export const parseId = make<string, string>((id, path) => {
   if (validate(id)) {
@@ -31,8 +31,8 @@ export const parseOptionalId = parseId.catch(
 
 export const parseUser = shape<User>({
   id: parseOptionalId,
-  login: string({ minLength: 5 }),
-  name: string({ minLength: 5 }),
+  login: string({ minLength: 2 }),
+  name: string({ minLength: 2 }),
   password: string({ optional: true, default: "" }),
   places: oneOf([eq("all"), array(parseId)]),
   type: oneOf([eq("admin"), eq("normal")], { default: "normal" }),
@@ -48,13 +48,40 @@ export const parseUser = shape<User>({
 
 export const parsePlace = shape<Place>({
   id: parseOptionalId,
-  name: string({ minLength: 5 }),
+  name: string({ minLength: 2 }),
 });
 
 export const parseDevice = shape<Device>({
   id: parseOptionalId,
-  name: string({ minLength: 5 }),
+  name: string({ minLength: 2 }),
   placeId: parseOptionalId,
-  url: string({ minLength: 5 }),
+  url: string({ minLength: 10 }),
   isActive: boolean({ default: true }),
+});
+
+export const parseOutSetting = shape<OutSetting>({
+  isActive: boolean(),
+  name: string({ minLength: 1 }),
+});
+
+export const parseSettings = shape<Settings>({
+  out: array(parseOutSetting).then(
+    make<
+      [OutSetting, OutSetting, OutSetting, OutSetting, OutSetting, OutSetting],
+      ReadonlyArray<OutSetting>
+    >((data, path) => {
+      if (data.length === 6) {
+        return data as [
+          OutSetting,
+          OutSetting,
+          OutSetting,
+          OutSetting,
+          OutSetting,
+          OutSetting
+        ];
+      } else {
+        throw error("Invalid out settings", path, data);
+      }
+    })
+  ),
 });

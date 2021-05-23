@@ -28,8 +28,25 @@ export type Device = {
   readonly isActive: boolean;
 };
 
+export type OutSetting = {
+  readonly isActive: boolean;
+  readonly name: string;
+};
+
+export type Settings = {
+  readonly out: [
+    OutSetting,
+    OutSetting,
+    OutSetting,
+    OutSetting,
+    OutSetting,
+    OutSetting
+  ];
+};
+
 export type Db = {
   readonly users: ReadonlyArray<User>;
   readonly places: ReadonlyArray<Place>;
   readonly devices: ReadonlyArray<Device>;
+  readonly settings: Settings;
 };

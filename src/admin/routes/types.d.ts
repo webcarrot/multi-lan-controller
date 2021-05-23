@@ -6,8 +6,15 @@ import { Route as NotFound } from "./notFound/types";
 import { Route as Users } from "./users/types";
 import { Route as Places } from "./places/types";
 import { Route as Devices } from "./devices/types";
+import { Route as Settings } from "./settings/types";
 
-export type RoutesType = Dashboard | NotFound | Users | Places | Devices;
+export type RoutesType =
+  | Dashboard
+  | NotFound
+  | Users
+  | Places
+  | Devices
+  | Settings;
 export type Routes = RoutesMap<RoutesType>;
 export type RouteContext = FullContext<RoutesType, AppContext>;
 export type Mode = "list" | "edit" | "add";

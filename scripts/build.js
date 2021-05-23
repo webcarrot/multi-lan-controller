@@ -145,6 +145,8 @@ module.exports = {
     packageJson.private = false;
     packageJson.bin = {
       "webcarrot-multi-lan-controller": "./multi-lan-controller.run",
+      "webcarrot-multi-lan-controller-service":
+        "./multi-lan-controller-service.run",
     };
 
     writeFileSync(
@@ -155,6 +157,33 @@ module.exports = {
     writeFileSync(
       join(__dirname, `../dist/${mode}/multi-lan-controller.run`),
       '#!/usr/bin/env node\nrequire("./node-server");'
+    );
+
+    writeFileSync(
+      join(__dirname, `../dist/${mode}/multi-lan-controller-service.run`),
+      `
+try {
+  require.resolve("node-windows");
+} catch (_) {
+  execSync("npm install -g node-windows");
+  execSync("npm link node-windows");
+}
+const script = require.resolve("./node-server");
+const { Service } = require('node-windows');
+
+const svc = new Service({
+  name: "LAN Controllers",
+  description: "LAN Controllers Manager",
+  script,
+  scriptOptions: process.argv.slice(2).join(" ")
+});
+
+svc.on("install",() => {
+  svc.start();
+});
+
+svc.install();
+`
     );
 
     writeFileSync(

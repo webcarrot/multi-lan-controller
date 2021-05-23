@@ -54,9 +54,9 @@ const makeInit = async (rootPath: string): Promise<string> => {
   );
   return `window.process={env:{NODE_ENV:"${
     process.env.NODE_ENV === "development" ? "development" : "production"
-  }"}};function onPolyfill(){(function(d,w,l,m,r,i){function a(s,e){e=d.createElement('script');e.src=r+s;d.head.appendChild(e);}i=setInterval(function(){if(window.React&&window.ReactDOM){clearInterval(i);(l&&!(w.fetch&&w.Proxy&&!/(Edge|Trident\\/7\\.)/.test(navigator.userAgent))?l:m).forEach(a);}},5)})(document,window,${legacyFiles},${modernFiles},${JSON.stringify(
+  }"}};(function(d,w,l,m,r,i){function a(s,e){e=d.createElement('script');e.src=r+s;d.head.appendChild(e);}(l&&!(w.fetch&&w.Proxy&&!/(Edge|Trident\\/7\\.)/.test(navigator.userAgent))?l:m).forEach(a);})(document,window,${legacyFiles},${modernFiles},${JSON.stringify(
     rootPath
-  )})};`;
+  )})`;
 };
 
 export const adminPageHandler = async (

@@ -6,16 +6,14 @@ import {
   ListItemIcon,
   ListItemText,
   Icon,
-  IconButton,
-  Avatar,
-  Typography,
-  Paper,
+  Divider,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 
 import { ReactRouteContext, Link } from "../routes/components";
 import { RoutesType } from "../routes/types";
 import { UserContext } from "./userContext";
+import { SIGNOUT_ENDPOINT } from "@webcarrot/multi-lan-controller/endpoints";
 
 const useStyles = makeStyles({
   root: {
@@ -92,10 +90,6 @@ export const Navigation = React.memo(() => {
   const classes = useStyles({});
   const user = React.useContext(UserContext);
 
-  const handleSignOut = React.useCallback(() => {
-    // FIXME
-  }, []);
-
   const { isCurrent } = React.useContext(ReactRouteContext);
 
   return (
@@ -128,12 +122,19 @@ export const Navigation = React.memo(() => {
           </ListItem>
         ))}
       </List>
-      <Paper square>
-        <IconButton onClick={handleSignOut} className={classes.avatarButton}>
-          <Avatar className={classes.avatar} />
-        </IconButton>
-        <Typography className={classes.userName}>{user.name}</Typography>
-      </Paper>
+      <Divider />
+      <List>
+        <ListItem button component="a" href={`/${SIGNOUT_ENDPOINT}`}>
+          <ListItemIcon>
+            <Icon>logout</Icon>
+          </ListItemIcon>
+          <ListItemText
+            primary={user.name}
+            secondary="Logout"
+            classes={{ root: classes.menuText }}
+          />
+        </ListItem>
+      </List>
     </Drawer>
   );
 });

@@ -100,7 +100,7 @@ const OutSettingEdit = React.memo<
 
   return (
     <>
-      <Grid item xs={4}>
+      <Grid item xs={2}>
         <FormControlLabel
           control={
             <Checkbox
@@ -113,9 +113,9 @@ const OutSettingEdit = React.memo<
           label="Is Active"
         />
       </Grid>
-      <Grid item xs={8}>
+      <Grid item xs={10}>
         <TextField
-          label="Place name"
+          label="OUT name"
           name="name"
           value={name}
           onChange={handleChange}

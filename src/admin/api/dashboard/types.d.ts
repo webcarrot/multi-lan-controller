@@ -3,7 +3,7 @@ import { DeviceStatus, DeviceOutNo } from "../../device/types";
 export type DashboardChangeOut = {
   readonly id: string;
   readonly no: ReadonlyArray<DeviceOutNo>;
-  readonly value: boolean;
+  readonly value: boolean | "toggle";
 };
 
 export type DashboardDevice = {

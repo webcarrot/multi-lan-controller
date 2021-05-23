@@ -48,13 +48,18 @@ export const getDeviceStatus = async (
 export const setOutStatus = async (
   device: Device,
   no: ReadonlyArray<DeviceOutNo>,
-  value: boolean
+  value: boolean | "toggle"
 ) => {
-  const status = await getDeviceStatus(device);
-  const toChange = no.filter((no) => status.out[no] !== value);
-  if (toChange.length) {
+  if (value === "toggle") {
     await axios.get<string>(
-      `${device.url}/outs.cgi?out=${toChange.join("")}`,
+      `${device.url}/outs.cgi?out=${no.join("")}`,
+      getConfig(device)
+    );
+  } else {
+    await axios.get<string>(
+      `${device.url}/outs.cgi?${no
+        .map((no) => `out${no}=${value ? 1 : 0}`)
+        .join("&")}`,
       getConfig(device)
     );
   }

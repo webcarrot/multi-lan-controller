@@ -1,10 +1,17 @@
 import * as React from "react";
 import { ActiveOut, Component as ComponentInt } from "./types";
-import { ItemContent, Main } from "../../components";
+import {
+  Bottombar,
+  Item,
+  ItemContent,
+  Main,
+  UserContext,
+} from "../../components";
 import { DashboardDevice, DashboardPlace } from "../../api/dashboard/types";
 import {
   Button,
   Checkbox,
+  Grid,
   Icon,
   Paper,
   Table,
@@ -16,6 +23,7 @@ import {
 } from "@material-ui/core";
 import { ReactAdminApiContext } from "../../api/context";
 import { DeviceOutNo } from "../../device/types";
+import { SIGNOUT_ENDPOINT } from "@webcarrot/multi-lan-controller/endpoints";
 
 const CHECKBOX_SIZE = 30;
 const ONLINE_SIZE = 30;
@@ -25,6 +33,7 @@ const Component: ComponentInt = ({ output: { dashboards, settings } }) => {
   const [selected, setSelected] = React.useState<ReadonlyArray<string>>([]);
   const [data, setData] = React.useState(dashboards);
   const adminApi = React.useContext(ReactAdminApiContext);
+  const user = React.useContext(UserContext);
   React.useEffect(() => {
     let onData = setData;
     let fetch = () => {
@@ -89,7 +98,7 @@ const Component: ComponentInt = ({ output: { dashboards, settings } }) => {
         selected.map((id) => ({
           id,
           no: [1],
-          value: true,
+          value: "toggle",
         }))
       );
     }
@@ -123,64 +132,80 @@ const Component: ComponentInt = ({ output: { dashboards, settings } }) => {
 
   return (
     <Main>
-      <ItemContent>
-        <TableContainer component={Paper}>
-          <Table size="small">
-            <TableBody>
-              <TableRow>
-                <TableCell align="center" width={CHECKBOX_SIZE}>
-                  <Checkbox
-                    checked={allSelected}
-                    onChange={handleToggle}
-                    size="small"
-                  />
-                </TableCell>
-                <TableCell component="th" scope="row" align="left">
-                  Wybrane
-                </TableCell>
-                <TableCell align="center">
-                  <Button
-                    onClick={handleETollOn}
-                    variant="contained"
-                    size="small"
-                    color="secondary"
-                  >
-                    Włącz system E-Toll
-                  </Button>
-                </TableCell>
-                <TableCell align="center">
-                  <Button
-                    onClick={handleETollOff}
-                    variant="contained"
-                    size="small"
-                    color="primary"
-                  >
-                    Wyłącz system E-Toll
-                  </Button>
-                </TableCell>
-                <TableCell align="center">
-                  <Button
-                    onClick={handleResetLoop}
-                    variant="contained"
-                    size="small"
-                  >
-                    Reset Pętli
-                  </Button>
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </TableContainer>
-        {data.map((place) => (
-          <Place
-            key={place.id}
-            {...place}
-            selected={selected}
-            onSelect={setSelected}
-            activeOut={activeOut}
-          />
-        ))}
-      </ItemContent>
+      <Item>
+        <ItemContent>
+          <TableContainer component={Paper}>
+            <Table size="small">
+              <TableBody>
+                <TableRow>
+                  <TableCell align="center" width={CHECKBOX_SIZE}>
+                    <Checkbox
+                      checked={allSelected}
+                      onChange={handleToggle}
+                      size="small"
+                    />
+                  </TableCell>
+                  <TableCell component="th" scope="row" align="left">
+                    Wybrane
+                  </TableCell>
+                  <TableCell align="center">
+                    <Button
+                      onClick={handleETollOn}
+                      variant="contained"
+                      size="small"
+                      color="secondary"
+                    >
+                      Włącz system E-Toll
+                    </Button>
+                  </TableCell>
+                  <TableCell align="center">
+                    <Button
+                      onClick={handleETollOff}
+                      variant="contained"
+                      size="small"
+                      color="primary"
+                    >
+                      Wyłącz system E-Toll
+                    </Button>
+                  </TableCell>
+                  <TableCell align="center">
+                    <Button
+                      onClick={handleResetLoop}
+                      variant="contained"
+                      size="small"
+                    >
+                      Reset Pętli
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </TableContainer>
+          {data.map((place) => (
+            <Place
+              key={place.id}
+              {...place}
+              selected={selected}
+              onSelect={setSelected}
+              activeOut={activeOut}
+            />
+          ))}
+        </ItemContent>
+        {user.type === "normal" ? (
+          <Bottombar>
+            <Grid item>
+              <Button
+                component="a"
+                href={`/${SIGNOUT_ENDPOINT}`}
+                variant="contained"
+                startIcon={<Icon>logout</Icon>}
+              >
+                Logout
+              </Button>
+            </Grid>
+          </Bottombar>
+        ) : null}
+      </Item>
     </Main>
   );
 };

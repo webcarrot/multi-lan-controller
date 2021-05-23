@@ -1,6 +1,6 @@
 {
   "name": "@webcarrot/multi-lan-controller",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Simple manager for multiple tinycontrol.pl lan controllers.",
   "main": "index.js",
   "scripts": {

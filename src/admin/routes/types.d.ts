@@ -1,0 +1,13 @@
+import { FullContext, RoutesMap } from "@webcarrot/router";
+import { AppContext } from "../app/types";
+
+import { Route as Dashboard } from "./dashboard/types";
+import { Route as NotFound } from "./notFound/types";
+import { Route as Users } from "./users/types";
+import { Route as Places } from "./places/types";
+import { Route as Devices } from "./devices/types";
+
+export type RoutesType = Dashboard | NotFound | Users | Places | Devices;
+export type Routes = RoutesMap<RoutesType>;
+export type RouteContext = FullContext<RoutesType, AppContext>;
+export type Mode = "list" | "edit" | "add";

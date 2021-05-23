@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "baseUrl": "./",
+    "outDir": "./dist/trash",
+    "module": "esnext",
+    "target": "esnext",
+    "sourceMap": true,
+    "declaration": false,
+    "noImplicitAny": true,
+    "removeComments": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "lib": ["es7", "es2017", "dom"],
+    "jsx": "react",
+    "paths": {
+      "@webcarrot/multi-lan-controller/*": ["./src/*"]
+    }
+  },
+  "exclude": ["./dist/**/*"],
+  "include": ["./src/**/*"]
+}

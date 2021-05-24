@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig.node",
+  "compilerOptions": {
+    "sourceMap": true,
+    "outDir": "../dist/development"
+  }
+}

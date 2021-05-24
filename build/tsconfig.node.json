@@ -1,0 +1,10 @@
+{
+  "extends": "../tsconfig",
+  "compilerOptions": {
+    "sourceMap": false,
+    "declaration": false,
+    "module": "CommonJS",
+    "target": "ESNext"
+  },
+  "exclude": ["./dist/**/*", "../src/admin/browser.ts"]
+}

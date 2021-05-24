@@ -16,7 +16,8 @@
     "clear:dev": "node ./scripts/npm.js",
     "start:dev": "node ./scripts/npm.js",
     "format": "prettier --loglevel warn --print-width 80 --write './src/**/*.ts' './src/**/*.tsx' './*.md' './*.json'",
-    "test": "tsc --noEmit"
+    "test": "tsc --noEmit",
+    "prepublish": "nopublish"
   },
   "repository": {
     "type": "git",

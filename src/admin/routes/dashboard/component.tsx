@@ -12,7 +12,6 @@ import {
   Button,
   Checkbox,
   Grid,
-  Icon,
   Paper,
   Table,
   TableBody,
@@ -24,6 +23,11 @@ import {
 import { ReactAdminApiContext } from "../../api/context";
 import { DeviceOutNo } from "../../device/types";
 import { SIGNOUT_ENDPOINT } from "@webcarrot/multi-lan-controller/endpoints";
+import LogoutIcon from "@material-ui/icons/ExitToApp";
+import OnlineIcon from "@material-ui/icons/Power";
+import OfflineIconIcon from "@material-ui/icons/PowerOff";
+import ActiveIcon from "@material-ui/icons/CheckBox";
+import InactiveIcon from "@material-ui/icons/CheckBoxOutlineBlank";
 
 const CHECKBOX_SIZE = 30;
 const ONLINE_SIZE = 30;
@@ -111,7 +115,7 @@ const Component: ComponentInt = ({ output: { dashboards, settings } }) => {
         selected.map((id) => ({
           id,
           no: [2, 4],
-          value: false,
+          value: true,
         }))
       );
     }
@@ -124,7 +128,7 @@ const Component: ComponentInt = ({ output: { dashboards, settings } }) => {
         selected.map((id) => ({
           id,
           no: [2, 4],
-          value: true,
+          value: false,
         }))
       );
     }
@@ -198,7 +202,7 @@ const Component: ComponentInt = ({ output: { dashboards, settings } }) => {
                 component="a"
                 href={`/${SIGNOUT_ENDPOINT}`}
                 variant="contained"
-                startIcon={<Icon>logout</Icon>}
+                startIcon={<LogoutIcon />}
               >
                 Logout
               </Button>
@@ -305,17 +309,23 @@ const Device = React.memo<
         {name}
       </TableCell>
       <TableCell align="center" width={ONLINE_SIZE}>
-        <Icon fontSize="small">{isOnline ? "cloud_done" : "cloud_off"}</Icon>
+        {isOnline ? (
+          <OnlineIcon fontSize="small" />
+        ) : (
+          <OfflineIconIcon fontSize="small" />
+        )}
       </TableCell>
       {activeOut.map(({ no }) => (
         <TableCell align="center" key={no} width={STATUS_SIZE}>
-          <Icon fontSize="small">
-            {isOnline
-              ? status.out[no]
-                ? "check_box"
-                : "check_box_outline_blank"
-              : "cloud_off"}
-          </Icon>
+          {isOnline ? (
+            status.out[no] ? (
+              <ActiveIcon fontSize="small" />
+            ) : (
+              <InactiveIcon fontSize="small" />
+            )
+          ) : (
+            <OfflineIconIcon fontSize="small" />
+          )}
         </TableCell>
       ))}
     </TableRow>

@@ -70,6 +70,7 @@
   },
   "dependencies": {
     "@material-ui/core": "^4.11.4",
+    "@material-ui/icons": "^4.11.2",
     "@types/uuid": "^8.3.0",
     "@webcarrot/api": "^1.8.0",
     "@webcarrot/parse": "^1.3.0",

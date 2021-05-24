@@ -25,7 +25,6 @@ export const Html = ({
       {meta.map(({ name, content }) => (
         <meta name={name} content={content} key={name} />
       ))}
-      <link rel="stylesheet" href="/material.css" />
       <title>{title}</title>
       {sheets.getStyleElement()}
     </head>

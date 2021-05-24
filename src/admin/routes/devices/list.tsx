@@ -1,6 +1,5 @@
 import * as React from "react";
 import {
-  Icon,
   List,
   ListItem,
   ListItemAvatar,
@@ -11,6 +10,8 @@ import { makeStyles } from "@material-ui/styles";
 import { Toolbar } from "@webcarrot/multi-lan-controller/admin/components";
 import { Link } from "../components";
 import { Device, Place } from "@webcarrot/multi-lan-controller/common/db/types";
+import ActiveIcon from "@material-ui/icons/CheckBox";
+import InactiveIcon from "@material-ui/icons/CheckBoxOutlineBlank";
 
 const useStyles = makeStyles({
   list: {
@@ -32,7 +33,7 @@ const Item = React.memo<{ item: Device; place: Place; selected: boolean }>(
         selected={selected}
       >
         <ListItemAvatar>
-          <Icon>{item.isActive ? "public" : "public_off"}</Icon>
+          {item.isActive ? <ActiveIcon /> : <InactiveIcon />}
         </ListItemAvatar>
         <ListItemText
           primary={item.name}

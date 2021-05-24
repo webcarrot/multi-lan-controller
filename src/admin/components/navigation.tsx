@@ -5,7 +5,6 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
-  Icon,
   Divider,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
@@ -14,6 +13,12 @@ import { ReactRouteContext, Link } from "../routes/components";
 import { RoutesType } from "../routes/types";
 import { UserContext } from "./userContext";
 import { SIGNOUT_ENDPOINT } from "@webcarrot/multi-lan-controller/endpoints";
+import DashboardIcon from "@material-ui/icons/Dashboard";
+import PlacesIcon from "@material-ui/icons/Place";
+import DevicesIcon from "@material-ui/icons/DeveloperBoard";
+import UsersIcon from "@material-ui/icons/SupervisorAccount";
+import SettingsIcon from "@material-ui/icons/Settings";
+import LogoutIcon from "@material-ui/icons/ExitToApp";
 
 const useStyles = makeStyles({
   root: {
@@ -62,27 +67,27 @@ const MENU_ITEMS: Array<{
   {
     route: "dashboard",
     label: "Dashboard",
-    Icon: React.memo(() => <Icon>dashboard</Icon>),
+    Icon: DashboardIcon,
   },
   {
     route: "places",
     label: "Places",
-    Icon: React.memo(() => <Icon>place</Icon>),
+    Icon: PlacesIcon,
   },
   {
     route: "devices",
     label: "Devices",
-    Icon: React.memo(() => <Icon>developer_board</Icon>),
+    Icon: DevicesIcon,
   },
   {
     route: "users",
     label: "Users",
-    Icon: React.memo(() => <Icon>manage_accounts</Icon>),
+    Icon: UsersIcon,
   },
   {
     route: "settings",
     label: "Settings",
-    Icon: React.memo(() => <Icon>settings</Icon>),
+    Icon: SettingsIcon,
   },
 ];
 
@@ -126,7 +131,7 @@ export const Navigation = React.memo(() => {
       <List>
         <ListItem button component="a" href={`/${SIGNOUT_ENDPOINT}`}>
           <ListItemIcon>
-            <Icon>logout</Icon>
+            <LogoutIcon />
           </ListItemIcon>
           <ListItemText
             primary={user.name}

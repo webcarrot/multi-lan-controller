@@ -8,18 +8,21 @@ import {
 
 import { RouteContext } from "../types";
 import { AppContext } from "@webcarrot/multi-lan-controller/admin/app/types";
-import { DashboardPlace } from "../../api/dashboard/types";
-import { Settings } from "@webcarrot/multi-lan-controller/common/db/types";
-import { DeviceOutNo } from "../../device/types";
+import { DashboardAction, DashboardPlace } from "../../api/dashboard/types";
+import {
+  DeviceOutNo,
+  Settings,
+} from "@webcarrot/multi-lan-controller/common/db/types";
 
 export type ID = "dashboard";
 
 export type Match = MatchInfo;
 
-export type Action = ActionInt<Match, Output, RouteContext>;
+export type RouteAction = ActionInt<Match, Output, RouteContext>;
 
 export type Output = OutputInt & {
   readonly settings: Settings;
+  readonly actions: ReadonlyArray<DashboardAction>;
   readonly dashboards: ReadonlyArray<DashboardPlace>;
 };
 

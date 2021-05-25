@@ -1,10 +1,4 @@
-import { DeviceStatus, DeviceOutNo } from "../../device/types";
-
-export type DashboardChangeOut = {
-  readonly id: string;
-  readonly no: ReadonlyArray<DeviceOutNo>;
-  readonly value: boolean | "toggle";
-};
+import { DeviceStatus } from "../../device/types";
 
 export type DashboardDevice = {
   readonly id: string;
@@ -17,4 +11,10 @@ export type DashboardPlace = {
   readonly id: string;
   readonly name: string;
   readonly devices: ReadonlyArray<DashboardDevice>;
+};
+
+export type DashboardAction = {
+  readonly id: string;
+  readonly name: string;
+  readonly color: string;
 };

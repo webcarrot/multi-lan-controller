@@ -7,6 +7,7 @@ import { Route as Users } from "./users/types";
 import { Route as Places } from "./places/types";
 import { Route as Devices } from "./devices/types";
 import { Route as Settings } from "./settings/types";
+import { Route as Actions } from "./actions/types";
 
 export type RoutesType =
   | Dashboard
@@ -14,7 +15,8 @@ export type RoutesType =
   | Users
   | Places
   | Devices
-  | Settings;
+  | Settings
+  | Actions;
 export type Routes = RoutesMap<RoutesType>;
 export type RouteContext = FullContext<RoutesType, AppContext>;
 export type Mode = "list" | "edit" | "add";

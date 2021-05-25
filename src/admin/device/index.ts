@@ -1,7 +1,10 @@
-import { Device } from "@webcarrot/multi-lan-controller/common/db/types";
+import {
+  Action,
+  Device,
+} from "@webcarrot/multi-lan-controller/common/db/types";
 import axios, { AxiosRequestConfig } from "axios";
 import { parseStringPromise } from "xml2js";
-import { DeviceOutNo, DeviceStatus } from "./types";
+import { DeviceStatus } from "./types";
 import { Agent } from "http";
 
 const CACHE = new Map<string, AxiosRequestConfig>();
@@ -45,22 +48,31 @@ export const getDeviceStatus = async (
   };
 };
 
-export const setOutStatus = async (
-  device: Device,
-  no: ReadonlyArray<DeviceOutNo>,
-  value: boolean | "toggle"
-) => {
-  if (value === "toggle") {
-    await axios.get<string>(
-      `${device.url}/outs.cgi?out=${no.join("")}`,
-      getConfig(device)
-    );
-  } else {
-    await axios.get<string>(
-      `${device.url}/outs.cgi?${no
-        .map((no) => `out${no}=${value ? 1 : 0}`)
-        .join("&")}`,
-      getConfig(device)
-    );
+export const makeQuery = (action: Action) => {
+  const toToggle = action.toChange
+    .filter(({ change }) => change === "toggle")
+    .map(({ out }) => out);
+  const toOn = action.toChange
+    .filter(({ change }) => change === "on")
+    .map(({ out }) => out);
+  const toOff = action.toChange
+    .filter(({ change }) => change === "off")
+    .map(({ out }) => out);
+
+  const query = [];
+  if (toToggle.length) {
+    query.push(`out=${toToggle.join("")}`);
   }
+  if (toOn.length) {
+    query.push(...toOn.map((no) => `out${no}=1`));
+  }
+  if (toOff.length) {
+    query.push(...toOff.map((no) => `out${no}=0`));
+  }
+
+  return query.join("&");
+};
+
+export const performAction = async (device: Device, query: string) => {
+  await axios.get<string>(`${device.url}/outs.cgi?${query}`, getConfig(device));
 };

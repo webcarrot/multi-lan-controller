@@ -7,7 +7,11 @@ import {
   Main,
   UserContext,
 } from "../../components";
-import { DashboardDevice, DashboardPlace } from "../../api/dashboard/types";
+import {
+  DashboardAction,
+  DashboardDevice,
+  DashboardPlace,
+} from "../../api/dashboard/types";
 import {
   Button,
   Checkbox,
@@ -21,19 +25,21 @@ import {
   TableRow,
 } from "@material-ui/core";
 import { ReactAdminApiContext } from "../../api/context";
-import { DeviceOutNo } from "../../device/types";
 import { SIGNOUT_ENDPOINT } from "@webcarrot/multi-lan-controller/endpoints";
 import LogoutIcon from "@material-ui/icons/ExitToApp";
 import OnlineIcon from "@material-ui/icons/Power";
 import OfflineIconIcon from "@material-ui/icons/PowerOff";
 import ActiveIcon from "@material-ui/icons/CheckBox";
 import InactiveIcon from "@material-ui/icons/CheckBoxOutlineBlank";
+import { DeviceOutNo } from "@webcarrot/multi-lan-controller/common/db/types";
 
 const CHECKBOX_SIZE = 30;
 const ONLINE_SIZE = 30;
 const STATUS_SIZE = 150;
 
-const Component: ComponentInt = ({ output: { dashboards, settings } }) => {
+const Component: ComponentInt = ({
+  output: { dashboards, settings, actions },
+}) => {
   const [selected, setSelected] = React.useState<ReadonlyArray<string>>([]);
   const [data, setData] = React.useState(dashboards);
   const adminApi = React.useContext(ReactAdminApiContext);
@@ -95,44 +101,17 @@ const Component: ComponentInt = ({ output: { dashboards, settings } }) => {
     [settings]
   );
 
-  const handleResetLoop = React.useCallback(() => {
-    if (selected.length) {
-      adminApi(
-        "Dashboard/ChangeOut",
-        selected.map((id) => ({
-          id,
-          no: [1],
-          value: "toggle",
-        }))
-      );
-    }
-  }, [selected]);
-
-  const handleETollOff = React.useCallback(() => {
-    if (selected.length) {
-      adminApi(
-        "Dashboard/ChangeOut",
-        selected.map((id) => ({
-          id,
-          no: [2, 4],
-          value: true,
-        }))
-      );
-    }
-  }, [selected]);
-
-  const handleETollOn = React.useCallback(() => {
-    if (selected.length) {
-      adminApi(
-        "Dashboard/ChangeOut",
-        selected.map((id) => ({
-          id,
-          no: [2, 4],
-          value: false,
-        }))
-      );
-    }
-  }, [selected]);
+  const handleCallAction = React.useCallback(
+    (actionId: string) => {
+      if (selected.length) {
+        adminApi("Dashboard/Action", {
+          actionId,
+          devicesIds: selected,
+        });
+      }
+    },
+    [selected]
+  );
 
   return (
     <Main>
@@ -150,37 +129,15 @@ const Component: ComponentInt = ({ output: { dashboards, settings } }) => {
                     />
                   </TableCell>
                   <TableCell component="th" scope="row" align="left">
-                    Wybrane
+                    Action
                   </TableCell>
-                  <TableCell align="center">
-                    <Button
-                      onClick={handleETollOn}
-                      variant="contained"
-                      size="small"
-                      color="secondary"
-                    >
-                      Włącz system E-Toll
-                    </Button>
-                  </TableCell>
-                  <TableCell align="center">
-                    <Button
-                      onClick={handleETollOff}
-                      variant="contained"
-                      size="small"
-                      color="primary"
-                    >
-                      Wyłącz system E-Toll
-                    </Button>
-                  </TableCell>
-                  <TableCell align="center">
-                    <Button
-                      onClick={handleResetLoop}
-                      variant="contained"
-                      size="small"
-                    >
-                      Reset Pętli
-                    </Button>
-                  </TableCell>
+                  {actions.map((action) => (
+                    <Action
+                      key={action.id}
+                      onCall={handleCallAction}
+                      {...action}
+                    />
+                  ))}
                 </TableRow>
               </TableBody>
             </Table>
@@ -213,6 +170,27 @@ const Component: ComponentInt = ({ output: { dashboards, settings } }) => {
     </Main>
   );
 };
+
+const Action = React.memo<
+  DashboardAction & {
+    onCall: (id: string) => void;
+  }
+>(({ id, name, color, onCall }) => {
+  const handleCallAction = React.useCallback(() => onCall(id), [id, onCall]);
+  return (
+    <TableCell align="center" key={id}>
+      <Button
+        onClick={handleCallAction}
+        variant="contained"
+        size="small"
+        color="secondary"
+        style={{ background: color }}
+      >
+        {name}
+      </Button>
+    </TableCell>
+  );
+});
 
 const Place = React.memo<
   DashboardPlace & {

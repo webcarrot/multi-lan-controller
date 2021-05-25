@@ -6,6 +6,7 @@ const EMPTY_DB: Db = {
   devices: [],
   places: [],
   users: [],
+  actions: [],
   settings: {
     out: [
       {

@@ -9,7 +9,17 @@ import {
   oneOf,
 } from "@webcarrot/parse";
 import { validate } from "uuid";
-import { Device, OutSetting, Place, Settings, User } from "./types";
+import {
+  Action,
+  ActionChange,
+  ActionChangeType,
+  Device,
+  DeviceOutNo,
+  OutSetting,
+  Place,
+  Settings,
+  User,
+} from "./types";
 
 export const parseId = make<string, string>((id, path) => {
   if (validate(id)) {
@@ -57,6 +67,19 @@ export const parseDevice = shape<Device>({
   placeId: parseOptionalId,
   url: string({ minLength: 10 }),
   isActive: boolean({ default: true }),
+});
+
+export const parseActionChange = shape<ActionChange>({
+  out: oneOf<DeviceOutNo>([eq(0), eq(1), eq(2), eq(3), eq(4), eq(5)]),
+  change: oneOf<ActionChangeType>([eq("on"), eq("off"), eq("toggle")]),
+});
+
+export const parseAction = shape<Action>({
+  id: parseOptionalId,
+  name: string({ minLength: 2 }),
+  color: string({ default: "" }),
+  isActive: boolean({ default: true }),
+  toChange: array(parseActionChange),
 });
 
 export const parseOutSetting = shape<OutSetting>({

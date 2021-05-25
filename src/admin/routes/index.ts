@@ -6,6 +6,7 @@ import { route as users } from "./users";
 import { route as places } from "./places";
 import { route as devices } from "./devices";
 import { route as settings } from "./settings";
+import { route as actions } from "./actions";
 
 export const routes: Routes = {
   dashboard,
@@ -13,5 +14,6 @@ export const routes: Routes = {
   places,
   devices,
   settings,
+  actions,
   notFound,
 };

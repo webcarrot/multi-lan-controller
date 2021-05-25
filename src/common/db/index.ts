@@ -1,4 +1,9 @@
 export { makeDbAccess } from "./db";
+export {
+  list as listActions,
+  save as saveAction,
+  getById as getActionById,
+} from "./actions";
 export { list as listDevices, save as saveDevice } from "./devices";
 export { list as listPlaces, save as savePlace } from "./places";
 export {

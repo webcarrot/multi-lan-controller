@@ -5,6 +5,8 @@ export type DbAccess = {
 
 export type UserType = "admin" | "normal";
 
+export type DeviceOutNo = 0 | 1 | 2 | 3 | 4 | 5;
+
 export type User = {
   readonly id: string;
   readonly login: string;
@@ -28,6 +30,21 @@ export type Device = {
   readonly isActive: boolean;
 };
 
+export type ActionChangeType = "on" | "off" | "toggle";
+
+export type ActionChange = {
+  readonly out: DeviceOutNo;
+  readonly change: ActionChangeType;
+};
+
+export type Action = {
+  readonly id: string;
+  readonly name: string;
+  readonly color: string;
+  readonly isActive: boolean;
+  readonly toChange: ReadonlyArray<ActionChange>;
+};
+
 export type OutSetting = {
   readonly isActive: boolean;
   readonly name: string;
@@ -48,5 +65,6 @@ export type Db = {
   readonly users: ReadonlyArray<User>;
   readonly places: ReadonlyArray<Place>;
   readonly devices: ReadonlyArray<Device>;
+  readonly actions: ReadonlyArray<Action>;
   readonly settings: Settings;
 };

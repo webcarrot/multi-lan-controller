@@ -16,6 +16,7 @@ import { SIGNOUT_ENDPOINT } from "@webcarrot/multi-lan-controller/endpoints";
 import DashboardIcon from "@material-ui/icons/Dashboard";
 import PlacesIcon from "@material-ui/icons/Place";
 import DevicesIcon from "@material-ui/icons/DeveloperBoard";
+import ActionsIcon from "@material-ui/icons/FlashOn";
 import UsersIcon from "@material-ui/icons/SupervisorAccount";
 import SettingsIcon from "@material-ui/icons/Settings";
 import LogoutIcon from "@material-ui/icons/ExitToApp";
@@ -78,6 +79,11 @@ const MENU_ITEMS: Array<{
     route: "devices",
     label: "Devices",
     Icon: DevicesIcon,
+  },
+  {
+    route: "actions",
+    label: "Actions",
+    Icon: ActionsIcon,
   },
   {
     route: "users",

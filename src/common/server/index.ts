@@ -11,7 +11,7 @@ import { DbAccess } from "../db/types";
 
 export const makeApp = async (dbAccess: DbAccess) => {
   const server = new Koa();
-  server.keys = true ? ["wojtek"] : [randomBytes(128).toString("hex")];
+  server.keys = [randomBytes(128).toString("hex")];
   const [storeState, stateHandler] = makeStateHandlers();
   server
     .use(keepAliveHandler)

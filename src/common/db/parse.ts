@@ -70,16 +70,24 @@ export const parseDevice = shape<Device>({
 });
 
 export const parseActionChange = shape<ActionChange>({
-  out: oneOf<DeviceOutNo>([eq(0), eq(1), eq(2), eq(3), eq(4), eq(5)]),
+  out: oneOf<DeviceOutNo>([eq(0), eq(1), eq(2), eq(3), eq(4)]),
   change: oneOf<ActionChangeType>([eq("on"), eq("off"), eq("toggle")]),
 });
 
 export const parseAction = shape<Action>({
   id: parseOptionalId,
   name: string({ minLength: 2 }),
-  color: string({ default: "" }),
+  color: string({ default: "#333333", regexp: /^#[0-9a-f]{6}/ }),
+  textColor: string({ default: "#ffffff", regexp: /^#[0-9a-f]{6}/ }),
   isActive: boolean({ default: true }),
-  toChange: array(parseActionChange),
+  toChange: make<ReadonlyArray<ActionChange>, ReadonlyArray<ActionChange>>(
+    (data) => {
+      if (!(data instanceof Array)) {
+        return [];
+      }
+      return data.filter(({ out }) => out <= 4);
+    }
+  ).then(array(parseActionChange)),
 });
 
 export const parseOutSetting = shape<OutSetting>({
@@ -89,19 +97,9 @@ export const parseOutSetting = shape<OutSetting>({
 
 export const parseSettings = shape<Settings>({
   out: array(parseOutSetting).then(
-    make<
-      [OutSetting, OutSetting, OutSetting, OutSetting, OutSetting, OutSetting],
-      ReadonlyArray<OutSetting>
-    >((data, path) => {
-      if (data.length === 6) {
-        return data as [
-          OutSetting,
-          OutSetting,
-          OutSetting,
-          OutSetting,
-          OutSetting,
-          OutSetting
-        ];
+    make<Settings["out"], ReadonlyArray<OutSetting>>((data, path) => {
+      if (data.length >= 5) {
+        return data.slice(0, 5) as Settings["out"];
       } else {
         throw error("Invalid out settings", path, data);
       }

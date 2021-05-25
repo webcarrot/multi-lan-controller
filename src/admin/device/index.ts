@@ -34,7 +34,7 @@ export const getDeviceStatus = async (
 ): Promise<DeviceStatus> => {
   const { data } = await axios.get(`${device.url}/st0.xml`, getConfig(device));
   const {
-    response: { out0, out1, out2, out3, out4, out5 },
+    response: { out0, out1, out2, out3, out4 },
   } = await parseStringPromise(data);
   return {
     out: [
@@ -43,7 +43,6 @@ export const getDeviceStatus = async (
       isTrue(out2[0]),
       isTrue(out3[0]),
       isTrue(out4[0]),
-      isTrue(out5[0]),
     ],
   };
 };

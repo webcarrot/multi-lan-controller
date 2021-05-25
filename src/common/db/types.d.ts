@@ -5,7 +5,7 @@ export type DbAccess = {
 
 export type UserType = "admin" | "normal";
 
-export type DeviceOutNo = 0 | 1 | 2 | 3 | 4 | 5;
+export type DeviceOutNo = 0 | 1 | 2 | 3 | 4;
 
 export type User = {
   readonly id: string;
@@ -41,6 +41,7 @@ export type Action = {
   readonly id: string;
   readonly name: string;
   readonly color: string;
+  readonly textColor: string;
   readonly isActive: boolean;
   readonly toChange: ReadonlyArray<ActionChange>;
 };
@@ -51,14 +52,7 @@ export type OutSetting = {
 };
 
 export type Settings = {
-  readonly out: [
-    OutSetting,
-    OutSetting,
-    OutSetting,
-    OutSetting,
-    OutSetting,
-    OutSetting
-  ];
+  readonly out: [OutSetting, OutSetting, OutSetting, OutSetting, OutSetting];
 };
 
 export type Db = {

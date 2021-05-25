@@ -32,12 +32,13 @@ import { Mode } from "../types";
 const NEW_DEVICE: Action = {
   id: null,
   name: "",
-  color: "",
+  color: "#333333",
+  textColor: "#ffffff",
   isActive: true,
   toChange: [],
 };
 
-const OUT_NUMBERS: ReadonlyArray<DeviceOutNo> = [0, 1, 2, 3, 4, 5];
+const OUT_NUMBERS: ReadonlyArray<DeviceOutNo> = [0, 1, 2, 3, 4];
 
 export const Edit = React.memo<{
   readonly mode: Mode;
@@ -57,7 +58,8 @@ export const Edit = React.memo<{
       const name = ev.target.name;
       switch (name) {
         case "name":
-        case "color": {
+        case "color":
+        case "textColor": {
           const value = ev.target.value;
           setData((data) => ({
             ...data,
@@ -108,7 +110,7 @@ export const Edit = React.memo<{
               fullWidth
             />
           </Grid>
-          <Grid item xs={3}>
+          <Grid item xs={2}>
             <TextField
               label="Button color"
               name="color"
@@ -118,7 +120,17 @@ export const Edit = React.memo<{
               fullWidth
             />
           </Grid>
-          <Grid item xs={3}>
+          <Grid item xs={2}>
+            <TextField
+              label="Text color"
+              name="textColor"
+              type="color"
+              value={data.textColor}
+              onChange={handleChange}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={2}>
             <FormControlLabel
               control={
                 <Checkbox

@@ -17,4 +17,5 @@ export type DashboardAction = {
   readonly id: string;
   readonly name: string;
   readonly color: string;
+  readonly textColor: string;
 };

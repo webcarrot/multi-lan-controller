@@ -175,7 +175,7 @@ const Action = React.memo<
   DashboardAction & {
     onCall: (id: string) => void;
   }
->(({ id, name, color, onCall }) => {
+>(({ id, name, color, textColor, onCall }) => {
   const handleCallAction = React.useCallback(() => onCall(id), [id, onCall]);
   return (
     <TableCell align="center" key={id}>
@@ -184,7 +184,7 @@ const Action = React.memo<
         variant="contained"
         size="small"
         color="secondary"
-        style={{ background: color }}
+        style={{ background: color, color: textColor }}
       >
         {name}
       </Button>

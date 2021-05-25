@@ -6,4 +6,9 @@ export const actions: AdminApiFunction<null, ReadonlyArray<DashboardAction>> =
   async (_, { dbAccess }) =>
     (await listActions(dbAccess))
       .filter(({ isActive }) => isActive)
-      .map(({ id, name, color }) => ({ id, name, color }));
+      .map(({ id, name, color, textColor }) => ({
+        id,
+        name,
+        color,
+        textColor,
+      }));

@@ -1,5 +1,12 @@
 import { promises } from "fs";
 import { join } from "path";
+import {
+  parseAction,
+  parseDevice,
+  parsePlace,
+  parseSettings,
+  parseUser,
+} from "./parse";
 import type { Db, DbAccess } from "./types";
 
 const EMPTY_DB: Db = {
@@ -29,12 +36,18 @@ const EMPTY_DB: Db = {
         isActive: false,
         name: "OUT4",
       },
-      {
-        isActive: false,
-        name: "OUT5",
-      },
     ],
   },
+};
+
+const checkDb = ({ actions, devices, places, settings, users }: Db): Db => {
+  return {
+    actions: actions.map((item) => parseAction(item)),
+    devices: devices.map((item) => parseDevice(item)),
+    places: places.map((item) => parsePlace(item)),
+    settings: parseSettings(settings),
+    users: users.map((item) => parseUser(item)),
+  };
 };
 
 export const makeDbAccess = async (databaseDir: string): Promise<DbAccess> => {
@@ -59,10 +72,12 @@ export const makeDbAccess = async (databaseDir: string): Promise<DbAccess> => {
       JSON.parse(
         await promises.readFile(join(databaseDir, "index.json"), "utf8")
       )
-    ).then((db) => ({
-      ...EMPTY_DB,
-      ...db,
-    }));
+    )
+      .then((db) => ({
+        ...EMPTY_DB,
+        ...db,
+      }))
+      .then(checkDb);
   } catch (_) {
     dbPromise = Promise.resolve<Db>(EMPTY_DB);
     await promises.writeFile(

@@ -128,16 +128,15 @@ const Component: ComponentInt = ({
                       size="small"
                     />
                   </TableCell>
-                  <TableCell component="th" scope="row" align="left">
-                    Action
+                  <TableCell align="left">
+                    {actions.map((action) => (
+                      <Action
+                        key={action.id}
+                        onCall={handleCallAction}
+                        {...action}
+                      />
+                    ))}
                   </TableCell>
-                  {actions.map((action) => (
-                    <Action
-                      key={action.id}
-                      onCall={handleCallAction}
-                      {...action}
-                    />
-                  ))}
                 </TableRow>
               </TableBody>
             </Table>
@@ -178,17 +177,15 @@ const Action = React.memo<
 >(({ id, name, color, textColor, onCall }) => {
   const handleCallAction = React.useCallback(() => onCall(id), [id, onCall]);
   return (
-    <TableCell align="center" key={id}>
-      <Button
-        onClick={handleCallAction}
-        variant="contained"
-        size="small"
-        color="secondary"
-        style={{ background: color, color: textColor }}
-      >
-        {name}
-      </Button>
-    </TableCell>
+    <Button
+      onClick={handleCallAction}
+      variant="contained"
+      size="small"
+      color="secondary"
+      style={{ background: color, color: textColor, marginRight: "1em" }}
+    >
+      {name}
+    </Button>
   );
 });
 

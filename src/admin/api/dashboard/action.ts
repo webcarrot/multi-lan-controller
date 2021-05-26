@@ -31,19 +31,22 @@ export const action: AdminApiFunction<
   }
 
   await Promise.all(
-    places.map(async (place) => {
-      await Promise.all(
-        devices
-          .filter(
-            ({ id, placeId }) => placeId === place.id && devicesIds.includes(id)
-          )
-          .map(async (device) => {
-            try {
-              await performAction(device, query);
-            } catch (_) {}
-          })
-      );
-    })
+    places
+      .filter(({ isActive }) => isActive)
+      .map(async (place) => {
+        await Promise.all(
+          devices
+            .filter(
+              ({ id, placeId, isActive }) =>
+                isActive && placeId === place.id && devicesIds.includes(id)
+            )
+            .map(async (device) => {
+              try {
+                await performAction(device, query);
+              } catch (_) {}
+            })
+        );
+      })
   );
   return null;
 };

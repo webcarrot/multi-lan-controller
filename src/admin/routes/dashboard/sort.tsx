@@ -1,310 +1,239 @@
 import * as React from "react";
-import { ActiveOut, Component as ComponentInt } from "./types";
+import { Component as ComponentInt } from "./types";
 import {
   Bottombar,
   Item,
   ItemContent,
   Main,
+  Toolbar,
   UserContext,
 } from "../../components";
-import {
-  DashboardAction,
-  DashboardDevice,
-  DashboardPlace,
-} from "../../api/dashboard/types";
-import {
-  Button,
-  Checkbox,
-  Grid,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-} from "@material-ui/core";
+import { Button, Grid, Paper, Typography } from "@material-ui/core";
 import { ReactAdminApiContext } from "../../api/context";
-import { SIGNOUT_ENDPOINT } from "@webcarrot/multi-lan-controller/endpoints";
-import LogoutIcon from "@material-ui/icons/ExitToApp";
-import OnlineIcon from "@material-ui/icons/Power";
-import OfflineIconIcon from "@material-ui/icons/PowerOff";
-import ActiveIcon from "@material-ui/icons/CheckBox";
-import InactiveIcon from "@material-ui/icons/CheckBoxOutlineBlank";
-import { DeviceOutNo } from "@webcarrot/multi-lan-controller/common/db/types";
+import BackIcon from "@material-ui/icons/ArrowBack";
+import SaveIcon from "@material-ui/icons/Save";
 
-const CHECKBOX_SIZE = 30;
-const ONLINE_SIZE = 30;
-const STATUS_SIZE = 150;
+import {
+  DragDropContext,
+  Draggable,
+  DragStart,
+  Droppable,
+  DropResult,
+} from "react-beautiful-dnd";
+import { Link, ReactRouteContext } from "../components";
 
 const Component: ComponentInt = ({
-  output: { dashboards, settings, actions },
+  output: { dashboards, actions, title },
 }) => {
-  const [selected, setSelected] = React.useState<ReadonlyArray<string>>([]);
-  const [data, setData] = React.useState(dashboards);
+  const { navigate } = React.useContext(ReactRouteContext);
+
+  const [droppableId, setDroppableId] = React.useState<string>(null);
+  const [sorted, setSorted] = React.useState({
+    dashboards,
+    actions,
+  });
   const adminApi = React.useContext(ReactAdminApiContext);
   const user = React.useContext(UserContext);
-  React.useEffect(() => {
-    let onData = setData;
-    let fetch = () => {
-      adminApi("Dashboard/Status", null).then((data) => onData(data));
-      timeout = setTimeout(fetch, 1000);
-    };
-    let timeout = setTimeout(fetch, 1000);
-    return () => {
-      clearTimeout(timeout);
-      onData = () => {};
-    };
-  }, [adminApi]);
-  const devicesIds = React.useMemo(
-    () =>
-      data.reduce(
+
+  const handleDragStart = React.useCallback(
+    (initial: DragStart) => setDroppableId(initial.source.droppableId),
+    []
+  );
+
+  const handleSave = React.useCallback(() => {
+    adminApi("Settings/Sort", {
+      actions: sorted.actions.map(({ id }) => id),
+      places: sorted.dashboards.map(({ id }) => id),
+      devices: sorted.dashboards.reduce<ReadonlyArray<string>>(
         (out, { devices }) => out.concat(devices.map(({ id }) => id)),
         []
       ),
-    data.reduce(
-      (out, { devices }) => out.concat(devices.map(({ id }) => id)),
-      []
-    )
-  );
+    }).then(() => navigate("dashboard", { match: { mode: "sort" } }));
+  }, [adminApi, sorted, navigate]);
 
-  const allSelected = React.useMemo(() => {
-    return devicesIds.reduce(
-      (allSelected, id) => allSelected && selected.includes(id),
-      true
-    );
-  }, [devicesIds, selected]);
-
-  const handleToggle = React.useCallback(() => {
-    if (allSelected) {
-      setSelected((selected) =>
-        selected.filter((id) => !devicesIds.includes(id))
-      );
-    } else {
-      setSelected((selected) =>
-        selected.concat(devicesIds.filter((id) => !selected.includes(id)))
-      );
-    }
-  }, [setSelected, allSelected, devicesIds]);
-
-  const activeOut = React.useMemo<ReadonlyArray<ActiveOut>>(
-    () =>
-      settings.out.reduce<Array<ActiveOut>>((out, { isActive, name }, no) => {
-        if (isActive) {
-          out.push({
-            name,
-            no: no as DeviceOutNo,
+  const handleDragEnd = React.useCallback((result: DropResult) => {
+    setDroppableId(null);
+    if (
+      result.destination &&
+      result.source &&
+      result.destination.droppableId === result.source.droppableId
+    ) {
+      const droppableId = result.destination.droppableId;
+      switch (droppableId) {
+        case "actions":
+          setSorted((sorted) => {
+            const items = [...sorted.actions];
+            const toMove = items.splice(result.source.index, 1);
+            items.splice(result.destination.index, 0, ...toMove);
+            return {
+              ...sorted,
+              actions: items,
+            };
           });
-        }
-        return out;
-      }, []),
-    [settings]
-  );
-
-  const handleCallAction = React.useCallback(
-    (actionId: string) => {
-      if (selected.length) {
-        adminApi("Dashboard/Action", {
-          actionId,
-          devicesIds: selected,
-        });
+          break;
+        case "places":
+          setSorted((sorted) => {
+            const items = [...sorted.dashboards];
+            const toMove = items.splice(result.source.index, 1);
+            items.splice(result.destination.index, 0, ...toMove);
+            return {
+              ...sorted,
+              dashboards: items,
+            };
+          });
+          break;
+        default:
+          setSorted((sorted) => {
+            const placeIndex = sorted.dashboards.findIndex(
+              ({ id }) => id === droppableId
+            );
+            if (placeIndex === -1) {
+              return sorted;
+            }
+            const place = sorted.dashboards[placeIndex];
+            const items = [...place.devices];
+            const toMove = items.splice(result.source.index, 1);
+            items.splice(result.destination.index, 0, ...toMove);
+            const dashboards = [...sorted.dashboards];
+            dashboards.splice(placeIndex, 1, {
+              ...place,
+              devices: items,
+            });
+            return {
+              ...sorted,
+              dashboards,
+            };
+          });
+          break;
       }
-    },
-    [selected]
-  );
+    }
+  }, []);
+
+  if (user.type === "normal") {
+    return null;
+  }
 
   return (
     <Main>
       <Item>
+        <Toolbar title={title} />
         <ItemContent>
-          <TableContainer component={Paper}>
-            <Table size="small">
-              <TableBody>
-                <TableRow>
-                  <TableCell align="center" width={CHECKBOX_SIZE}>
-                    <Checkbox
-                      checked={allSelected}
-                      onChange={handleToggle}
-                      size="small"
-                    />
-                  </TableCell>
-                  <TableCell align="left">
-                    {actions.map((action) => (
-                      <Action
-                        key={action.id}
-                        onCall={handleCallAction}
-                        {...action}
-                      />
-                    ))}
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </TableContainer>
-          {data.map((place) => (
-            <Place
-              key={place.id}
-              {...place}
-              selected={selected}
-              onSelect={setSelected}
-              activeOut={activeOut}
-            />
-          ))}
+          <DragDropContext
+            onDragEnd={handleDragEnd}
+            onDragStart={handleDragStart}
+          >
+            {sorted.actions.length ? (
+              <SortThings
+                id="actions"
+                title="Sort actions"
+                items={sorted.actions}
+                droppableId={droppableId}
+              />
+            ) : null}
+            {sorted.dashboards.length ? (
+              <>
+                <SortThings
+                  id="places"
+                  key="places"
+                  title="Sort places"
+                  items={sorted.dashboards}
+                  droppableId={droppableId}
+                />
+                {sorted.dashboards.map(({ id, name, devices }) => (
+                  <SortThings
+                    id={id}
+                    key={id}
+                    title={`Sort devices in ${name}`}
+                    items={devices}
+                    droppableId={droppableId}
+                  />
+                ))}
+              </>
+            ) : null}
+          </DragDropContext>
         </ItemContent>
-        {user.type === "normal" ? (
-          <Bottombar>
-            <Grid item>
-              <Button
-                component="a"
-                href={`/${SIGNOUT_ENDPOINT}`}
-                variant="contained"
-                startIcon={<LogoutIcon />}
-              >
-                Logout
-              </Button>
-            </Grid>
-          </Bottombar>
-        ) : null}
+        <Bottombar>
+          <Grid item>
+            <Button
+              startIcon={<SaveIcon />}
+              variant="contained"
+              color="primary"
+              onClick={handleSave}
+            >
+              Save
+            </Button>
+          </Grid>
+          <Grid item>
+            <Button
+              component={Link}
+              match={{}}
+              route="dashboard"
+              variant="contained"
+              startIcon={<BackIcon />}
+            >
+              Back to dashboard
+            </Button>
+          </Grid>
+        </Bottombar>
       </Item>
     </Main>
   );
 };
 
-const Action = React.memo<
-  DashboardAction & {
-    onCall: (id: string) => void;
-  }
->(({ id, name, color, textColor, onCall }) => {
-  const handleCallAction = React.useCallback(() => onCall(id), [id, onCall]);
-  return (
-    <Button
-      onClick={handleCallAction}
-      variant="contained"
-      size="small"
-      color="secondary"
-      style={{ background: color, color: textColor, marginRight: "1em" }}
-    >
-      {name}
-    </Button>
-  );
-});
-
-const Place = React.memo<
-  DashboardPlace & {
-    readonly selected: ReadonlyArray<string>;
-    readonly onSelect: React.Dispatch<React.SetStateAction<readonly string[]>>;
-    readonly activeOut: ReadonlyArray<ActiveOut>;
-  }
->(({ name, devices, selected, onSelect, activeOut }) => {
-  const devicesIds = React.useMemo(
-    () => devices.map(({ id }) => id),
-    devices.map(({ id }) => id)
-  );
-
-  const allSelected = React.useMemo(() => {
-    return devicesIds.reduce(
-      (allSelected, id) => allSelected && selected.includes(id),
-      true
-    );
-  }, [devicesIds, selected]);
-
-  const handleToggle = React.useCallback(() => {
-    if (allSelected) {
-      onSelect((selected) => selected.filter((id) => !devicesIds.includes(id)));
-    } else {
-      onSelect((selected) =>
-        selected.concat(devicesIds.filter((id) => !selected.includes(id)))
-      );
-    }
-  }, [onSelect, allSelected, devicesIds]);
-
-  const handleSelect = React.useCallback(
-    (id: string) => {
-      onSelect((selected) =>
-        selected.includes(id)
-          ? selected.filter((i) => i !== id)
-          : [...selected, id]
-      );
-    },
-    [onSelect]
-  );
-  return (
-    <TableContainer component={Paper}>
-      <Table size="small">
-        <TableHead>
-          <TableRow>
-            <TableCell align="center" width={CHECKBOX_SIZE}>
-              <Checkbox
-                checked={allSelected}
-                onChange={handleToggle}
-                size="small"
-              />
-            </TableCell>
-            <TableCell align="left">{name}</TableCell>
-            <TableCell align="center" width={ONLINE_SIZE}>
-              OL
-            </TableCell>
-            {activeOut.map(({ name, no }) => (
-              <TableCell align="center" key={no} width={STATUS_SIZE}>
-                {name}
-              </TableCell>
-            ))}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {devices.map((device) => (
-            <Device
-              key={device.id}
-              {...device}
-              selected={selected.includes(device.id)}
-              onSelect={handleSelect}
-              activeOut={activeOut}
-            />
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
-  );
-});
-
-const Device = React.memo<
-  DashboardDevice & {
-    readonly selected: boolean;
-    readonly onSelect: (id: string) => void;
-    readonly activeOut: ReadonlyArray<ActiveOut>;
-  }
->(({ id, isOnline, name, onSelect, selected, status, activeOut }) => {
-  const handleToggle = React.useCallback(() => onSelect(id), [id, onSelect]);
-  return (
-    <TableRow>
-      <TableCell align="center" width={CHECKBOX_SIZE}>
-        <Checkbox checked={selected} onChange={handleToggle} size="small" />
-      </TableCell>
-      <TableCell component="th" scope="row" align="left">
-        {name}
-      </TableCell>
-      <TableCell align="center" width={ONLINE_SIZE}>
-        {isOnline ? (
-          <OnlineIcon fontSize="small" />
-        ) : (
-          <OfflineIconIcon fontSize="small" />
-        )}
-      </TableCell>
-      {activeOut.map(({ no }) => (
-        <TableCell align="center" key={no} width={STATUS_SIZE}>
-          {isOnline ? (
-            status.out[no] ? (
-              <ActiveIcon fontSize="small" />
-            ) : (
-              <InactiveIcon fontSize="small" />
-            )
-          ) : (
-            <OfflineIconIcon fontSize="small" />
+const SortThings = React.memo(
+  <T extends { readonly id: string; readonly name: string }>({
+    title,
+    id,
+    items,
+    droppableId,
+  }: {
+    readonly title: string;
+    readonly id: string;
+    readonly items: ReadonlyArray<T>;
+    readonly droppableId: string;
+  }) => {
+    return (
+      <>
+        <Typography variant="h6">{title}</Typography>
+        <Droppable
+          droppableId={id}
+          isDropDisabled={!!(droppableId && droppableId !== id)}
+        >
+          {(provided) => (
+            <div
+              {...provided.droppableProps}
+              style={{
+                margin: "8px 0 16px 0",
+              }}
+              ref={provided.innerRef}
+            >
+              {items.map(({ name, id }, index) => (
+                <Draggable key={id} draggableId={id} index={index}>
+                  {(provided, { isDragging }) => (
+                    <Paper
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                      variant="outlined"
+                      style={{
+                        opacity: isDragging ? 0.5 : 1,
+                        padding: "8px",
+                        margin: "8px 0",
+                        ...provided.draggableProps.style,
+                      }}
+                    >
+                      {name}
+                    </Paper>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </div>
           )}
-        </TableCell>
-      ))}
-    </TableRow>
-  );
-});
+        </Droppable>
+      </>
+    );
+  }
+);
 
 export default Component;

@@ -28,4 +28,5 @@ export const actions = {
   // Settings
   "Settings/Read": ew(settings.read),
   "Settings/Save": ew(settings.save),
+  "Settings/Sort": ew(settings.sort),
 };

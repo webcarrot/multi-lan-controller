@@ -3,8 +3,15 @@ import {
   Checkbox,
   FormControlLabel,
   Grid,
+  Paper,
   TextField,
 } from "@material-ui/core";
+import SaveIcon from "@material-ui/icons/Save";
+
+import {
+  parseSettings,
+  useIsValid,
+} from "@webcarrot/multi-lan-controller/common/db/parse";
 import {
   OutSetting,
   Settings,
@@ -25,10 +32,13 @@ export const Edit = React.memo<{
 }>(({ settings, onSave, title }) => {
   const [data, setData] = useAutoState<Settings>(settings);
   const adminApi = React.useContext(ReactAdminApiContext);
+  const isValid = useIsValid(data, parseSettings);
 
   const handleSave = React.useCallback(() => {
-    adminApi("Settings/Save", data).then(() => onSave());
-  }, [onSave, data]);
+    if (isValid) {
+      adminApi("Settings/Save", data).then(() => onSave());
+    }
+  }, [onSave, data, isValid]);
 
   const handleChangeOut = React.useCallback(
     (no: number, outSettings: OutSetting) => {
@@ -48,20 +58,24 @@ export const Edit = React.memo<{
     <>
       <Toolbar title={title} />
       <ItemContent>
-        <Grid container spacing={2}>
-          {data.out.map((outSettings, no) => (
-            <OutSettingEdit
-              key={no}
-              onChange={handleChangeOut}
-              no={no}
-              {...outSettings}
-            />
-          ))}
-        </Grid>
+        {data.out.map((outSettings, no) => (
+          <OutSettingEdit
+            key={no}
+            onChange={handleChangeOut}
+            no={no}
+            {...outSettings}
+          />
+        ))}
       </ItemContent>
       <Bottombar>
         <Grid item>
-          <Button onClick={handleSave} variant="contained" color="primary">
+          <Button
+            onClick={handleSave}
+            variant="contained"
+            color="primary"
+            disabled={!isValid}
+            startIcon={<SaveIcon />}
+          >
             Save
           </Button>
         </Grid>
@@ -69,6 +83,7 @@ export const Edit = React.memo<{
     </>
   );
 });
+const OUT_SETTING_STYLE = { margin: "8px 0", padding: "8px" };
 
 const OutSettingEdit = React.memo<
   OutSetting & {
@@ -99,29 +114,30 @@ const OutSettingEdit = React.memo<
   );
 
   return (
-    <>
-      <Grid item xs={2}>
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={isActive}
-              onChange={handleChange}
-              name="isActive"
-              color="primary"
-            />
-          }
-          label="Is Active"
-        />
+    <Paper variant="outlined" style={OUT_SETTING_STYLE}>
+      <Grid container alignItems="center" spacing={2}>
+        <Grid item xs={9}>
+          <TextField
+            label={`OUT${no} name`}
+            name="name"
+            value={name}
+            onChange={handleChange}
+            fullWidth
+          />
+        </Grid>
+        <Grid item>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={isActive}
+                onChange={handleChange}
+                name="isActive"
+              />
+            }
+            label="Show in Dashboard"
+          />
+        </Grid>
       </Grid>
-      <Grid item xs={10}>
-        <TextField
-          label="OUT name"
-          name="name"
-          value={name}
-          onChange={handleChange}
-          fullWidth
-        />
-      </Grid>
-    </>
+    </Paper>
   );
 });

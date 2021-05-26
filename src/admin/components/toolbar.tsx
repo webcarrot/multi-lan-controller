@@ -18,13 +18,13 @@ const useStyles = makeStyles<
   },
   toolbar: {
     position: "relative",
-    padding: ({ haveTitle }) => theme.spacing(haveTitle ? 4 : 1, 2, 1, 2),
+    padding: ({ haveTitle }) => theme.spacing(haveTitle ? 3 : 1, 1, 1, 1),
     minHeight: ({ haveContent }) => (haveContent ? "32px" : "0px"),
   },
   header: {
     position: "absolute",
     padding: theme.spacing(1, 0),
-    top: ({ haveContent }) => (haveContent ? "0px" : "4px"),
+    top: 0,
     left: theme.spacing(2),
     right: theme.spacing(8),
     fontSize: "14px!important",

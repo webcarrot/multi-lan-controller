@@ -15,6 +15,12 @@ import {
   TextField,
 } from "@material-ui/core";
 import {
+  parseAction,
+  useIsValid,
+} from "@webcarrot/multi-lan-controller/common/db/parse";
+import SaveIcon from "@material-ui/icons/Save";
+
+import {
   Action,
   ActionChangeType,
   DeviceOutNo,
@@ -48,9 +54,12 @@ export const Edit = React.memo<{
 }>(({ mode, item, title, onSave }) => {
   const [data, setData] = useAutoState<Action>(item || NEW_DEVICE);
   const adminApi = React.useContext(ReactAdminApiContext);
+  const isValid = useIsValid(data, parseAction);
 
   const handleSave = React.useCallback(() => {
-    adminApi("Actions/Save", data).then(({ id }) => onSave(id, mode));
+    if (isValid) {
+      adminApi("Actions/Save", data).then(({ id }) => onSave(id, mode));
+    }
   }, [adminApi, data, onSave, mode]);
 
   const handleChange = React.useCallback(
@@ -137,14 +146,13 @@ export const Edit = React.memo<{
                   checked={data.isActive}
                   onChange={handleChange}
                   name="isActive"
-                  color="primary"
                 />
               }
               label="Is Active"
             />
           </Grid>
           <Grid item xs={12}>
-            <TableContainer component={Paper}>
+            <TableContainer component={Paper} variant="outlined">
               <Table size="small">
                 <TableHead>
                   <TableRow>
@@ -173,7 +181,13 @@ export const Edit = React.memo<{
       </ItemContent>
       <Bottombar>
         <Grid item>
-          <Button onClick={handleSave} variant="contained" color="primary">
+          <Button
+            onClick={handleSave}
+            variant="contained"
+            color="primary"
+            disabled={!isValid}
+            startIcon={<SaveIcon />}
+          >
             {mode === "add" ? "Add" : "Save"}
           </Button>
         </Grid>

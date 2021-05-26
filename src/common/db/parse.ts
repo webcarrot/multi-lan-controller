@@ -7,7 +7,9 @@ import {
   boolean,
   eq,
   oneOf,
+  Parser,
 } from "@webcarrot/parse";
+import { useMemo } from "react";
 import { validate } from "uuid";
 import {
   Action,
@@ -43,7 +45,7 @@ export const parseUser = shape<User>({
   id: parseOptionalId,
   login: string({ minLength: 2 }),
   name: string({ minLength: 2 }),
-  password: string({ optional: true, default: "" }),
+  password: string({ optional: true, nullable: true, default: "" }),
   places: oneOf([eq("all"), array(parseId)]),
   type: oneOf([eq("admin"), eq("normal")], { default: "normal" }),
   isActive: boolean({ default: true }),
@@ -59,6 +61,7 @@ export const parseUser = shape<User>({
 export const parsePlace = shape<Place>({
   id: parseOptionalId,
   name: string({ minLength: 2 }),
+  isActive: boolean({ default: true }),
 });
 
 export const parseDevice = shape<Device>({
@@ -106,3 +109,13 @@ export const parseSettings = shape<Settings>({
     })
   ),
 });
+
+export const useIsValid = <T>(data: T, validator: Parser<T>) =>
+  useMemo(() => {
+    try {
+      validator(data);
+    } catch (_) {
+      return false;
+    }
+    return true;
+  }, [data, validator]);

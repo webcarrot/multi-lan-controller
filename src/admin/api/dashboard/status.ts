@@ -16,29 +16,33 @@ export const status: AdminApiFunction<null, ReadonlyArray<DashboardPlace>> =
     }
     return (
       await Promise.all(
-        places.map(async (place): Promise<DashboardPlace> => {
-          return {
-            ...place,
-            devices: await Promise.all(
-              devices
-                .filter(({ placeId }) => placeId === place.id)
-                .map(async (device): Promise<DashboardDevice> => {
-                  let status: DeviceStatus;
-                  let isOnline = false;
-                  try {
-                    status = await getDeviceStatus(device);
-                    isOnline = true;
-                  } catch (_) {}
-                  return {
-                    id: device.id,
-                    name: device.name,
-                    isOnline,
-                    status,
-                  };
-                })
-            ),
-          };
-        })
+        places
+          .filter(({ isActive }) => isActive)
+          .map(async (place): Promise<DashboardPlace> => {
+            return {
+              ...place,
+              devices: await Promise.all(
+                devices
+                  .filter(
+                    ({ placeId, isActive }) => placeId === place.id && isActive
+                  )
+                  .map(async (device): Promise<DashboardDevice> => {
+                    let status: DeviceStatus;
+                    let isOnline = false;
+                    try {
+                      status = await getDeviceStatus(device);
+                      isOnline = true;
+                    } catch (_) {}
+                    return {
+                      id: device.id,
+                      name: device.name,
+                      isOnline,
+                      status,
+                    };
+                  })
+              ),
+            };
+          })
       )
     ).filter((place) => place.devices.length > 0);
   };

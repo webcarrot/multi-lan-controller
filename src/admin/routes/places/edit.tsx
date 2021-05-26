@@ -1,4 +1,16 @@
-import { Button, Grid, TextField } from "@material-ui/core";
+import {
+  Button,
+  Checkbox,
+  FormControlLabel,
+  Grid,
+  TextField,
+} from "@material-ui/core";
+import {
+  parsePlace,
+  useIsValid,
+} from "@webcarrot/multi-lan-controller/common/db/parse";
+import SaveIcon from "@material-ui/icons/Save";
+
 import { Place } from "@webcarrot/multi-lan-controller/common/db/types";
 import * as React from "react";
 import { ReactAdminApiContext } from "../../api/context";
@@ -13,6 +25,7 @@ import { Mode } from "../types";
 const NEW_PLACE: Place = {
   id: null,
   name: "",
+  isActive: true,
 };
 
 export const Edit = React.memo<{
@@ -23,10 +36,13 @@ export const Edit = React.memo<{
 }>(({ mode, item, onSave, title }) => {
   const [data, setData] = useAutoState<Place>(item || NEW_PLACE);
   const adminApi = React.useContext(ReactAdminApiContext);
+  const isValid = useIsValid(data, parsePlace);
 
   const handleSave = React.useCallback(() => {
-    adminApi("Places/Save", data).then(({ id }) => onSave(id, mode));
-  }, [adminApi, data, onSave, mode]);
+    if (isValid) {
+      adminApi("Places/Save", data).then(({ id }) => onSave(id, mode));
+    }
+  }, [adminApi, data, onSave, mode, isValid]);
 
   const handleChange = React.useCallback(
     (ev: React.ChangeEvent<HTMLInputElement>) => {
@@ -40,6 +56,14 @@ export const Edit = React.memo<{
           }));
           break;
         }
+        case "isActive": {
+          const value = ev.target.checked;
+          setData((data) => ({
+            ...data,
+            isActive: value,
+          }));
+          break;
+        }
       }
     },
     [setData]
@@ -50,7 +74,7 @@ export const Edit = React.memo<{
       <Toolbar title={title} />
       <ItemContent>
         <Grid container spacing={2}>
-          <Grid item xs={6}>
+          <Grid item xs={8}>
             <TextField
               label="Place name"
               name="name"
@@ -59,11 +83,29 @@ export const Edit = React.memo<{
               fullWidth
             />
           </Grid>
+          <Grid item xs={4}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={data.isActive}
+                  onChange={handleChange}
+                  name="isActive"
+                />
+              }
+              label="Is Active"
+            />
+          </Grid>
         </Grid>
       </ItemContent>
       <Bottombar>
         <Grid item>
-          <Button onClick={handleSave} variant="contained" color="primary">
+          <Button
+            onClick={handleSave}
+            variant="contained"
+            color="primary"
+            disabled={!isValid}
+            startIcon={<SaveIcon />}
+          >
             {mode === "add" ? "Add" : "Save"}
           </Button>
         </Grid>

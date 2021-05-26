@@ -20,6 +20,7 @@ export type User = {
 export type Place = {
   readonly id: string;
   readonly name: string;
+  readonly isActive: boolean;
 };
 
 export type Device = {

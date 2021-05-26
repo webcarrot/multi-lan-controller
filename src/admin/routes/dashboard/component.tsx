@@ -5,6 +5,7 @@ import {
   Item,
   ItemContent,
   Main,
+  Toolbar,
   UserContext,
 } from "../../components";
 import {
@@ -15,6 +16,7 @@ import {
 import {
   Button,
   Checkbox,
+  Divider,
   Grid,
   Paper,
   Table,
@@ -27,18 +29,23 @@ import {
 import { ReactAdminApiContext } from "../../api/context";
 import { SIGNOUT_ENDPOINT } from "@webcarrot/multi-lan-controller/endpoints";
 import LogoutIcon from "@material-ui/icons/ExitToApp";
+import SortIcon from "@material-ui/icons/Sort";
+
 import OnlineIcon from "@material-ui/icons/Power";
 import OfflineIconIcon from "@material-ui/icons/PowerOff";
 import ActiveIcon from "@material-ui/icons/CheckBox";
 import InactiveIcon from "@material-ui/icons/CheckBoxOutlineBlank";
 import { DeviceOutNo } from "@webcarrot/multi-lan-controller/common/db/types";
+import { Link } from "../components";
 
-const CHECKBOX_SIZE = 30;
-const ONLINE_SIZE = 30;
+const CHECKBOX_SIZE = 40;
+const ONLINE_SIZE = 40;
 const STATUS_SIZE = 150;
 
+const TABLE_STYLE = { margin: "8px 0" };
+
 const Component: ComponentInt = ({
-  output: { dashboards, settings, actions },
+  output: { dashboards, settings, actions, title },
 }) => {
   const [selected, setSelected] = React.useState<ReadonlyArray<string>>([]);
   const [data, setData] = React.useState(dashboards);
@@ -116,8 +123,12 @@ const Component: ComponentInt = ({
   return (
     <Main>
       <Item>
-        <ItemContent>
-          <TableContainer component={Paper}>
+        <Toolbar title={title}>
+          <TableContainer
+            component={Paper}
+            style={TABLE_STYLE}
+            variant="outlined"
+          >
             <Table size="small">
               <TableBody>
                 <TableRow>
@@ -141,6 +152,8 @@ const Component: ComponentInt = ({
               </TableBody>
             </Table>
           </TableContainer>
+        </Toolbar>
+        <ItemContent>
           {data.map((place) => (
             <Place
               key={place.id}
@@ -151,9 +164,9 @@ const Component: ComponentInt = ({
             />
           ))}
         </ItemContent>
-        {user.type === "normal" ? (
-          <Bottombar>
-            <Grid item>
+        <Bottombar>
+          <Grid item>
+            {user.type === "normal" ? (
               <Button
                 component="a"
                 href={`/${SIGNOUT_ENDPOINT}`}
@@ -162,9 +175,19 @@ const Component: ComponentInt = ({
               >
                 Logout
               </Button>
-            </Grid>
-          </Bottombar>
-        ) : null}
+            ) : (
+              <Button
+                component={Link}
+                match={{ mode: "sort" }}
+                route="dashboard"
+                variant="contained"
+                startIcon={<SortIcon />}
+              >
+                Sort settings
+              </Button>
+            )}
+          </Grid>
+        </Bottombar>
       </Item>
     </Main>
   );
@@ -229,41 +252,44 @@ const Place = React.memo<
     [onSelect]
   );
   return (
-    <TableContainer component={Paper}>
-      <Table size="small">
-        <TableHead>
-          <TableRow>
-            <TableCell align="center" width={CHECKBOX_SIZE}>
-              <Checkbox
-                checked={allSelected}
-                onChange={handleToggle}
-                size="small"
-              />
-            </TableCell>
-            <TableCell align="left">{name}</TableCell>
-            <TableCell align="center" width={ONLINE_SIZE}>
-              OL
-            </TableCell>
-            {activeOut.map(({ name, no }) => (
-              <TableCell align="center" key={no} width={STATUS_SIZE}>
-                {name}
+    <>
+      <Divider />
+      <TableContainer component={Paper} style={TABLE_STYLE} variant="outlined">
+        <Table size="small">
+          <TableHead>
+            <TableRow>
+              <TableCell align="center" width={CHECKBOX_SIZE}>
+                <Checkbox
+                  checked={allSelected}
+                  onChange={handleToggle}
+                  size="small"
+                />
               </TableCell>
+              <TableCell align="left">{name}</TableCell>
+              <TableCell align="center" width={ONLINE_SIZE}>
+                OL
+              </TableCell>
+              {activeOut.map(({ name, no }) => (
+                <TableCell align="center" key={no} width={STATUS_SIZE}>
+                  {name}
+                </TableCell>
+              ))}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {devices.map((device) => (
+              <Device
+                key={device.id}
+                {...device}
+                selected={selected.includes(device.id)}
+                onSelect={handleSelect}
+                activeOut={activeOut}
+              />
             ))}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {devices.map((device) => (
-            <Device
-              key={device.id}
-              {...device}
-              selected={selected.includes(device.id)}
-              onSelect={handleSelect}
-              activeOut={activeOut}
-            />
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </>
   );
 });
 

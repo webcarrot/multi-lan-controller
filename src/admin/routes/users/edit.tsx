@@ -11,6 +11,12 @@ import {
   Select,
   TextField,
 } from "@material-ui/core";
+import {
+  parseUser,
+  useIsValid,
+} from "@webcarrot/multi-lan-controller/common/db/parse";
+import SaveIcon from "@material-ui/icons/Save";
+
 import { Place, User } from "@webcarrot/multi-lan-controller/common/db/types";
 import * as React from "react";
 import { ReactAdminApiContext } from "../../api/context";
@@ -43,9 +49,13 @@ export const Edit = React.memo<{
 
   const adminApi = React.useContext(ReactAdminApiContext);
 
+  const isValid = useIsValid(data, parseUser);
+
   const handleSave = React.useCallback(() => {
-    adminApi("Users/Save", data).then(({ id }) => onSave(id, mode));
-  }, [adminApi, data, onSave, mode]);
+    if (isValid) {
+      adminApi("Users/Save", data).then(({ id }) => onSave(id, mode));
+    }
+  }, [adminApi, data, onSave, mode, isValid]);
 
   const handleChange = React.useCallback(
     (ev: React.ChangeEvent<HTMLInputElement>) => {
@@ -146,7 +156,7 @@ export const Edit = React.memo<{
               label="User password"
               name="password"
               type="password"
-              value={data.password}
+              value={data.password || ""}
               onChange={handleChange}
               fullWidth
               autoComplete="off"
@@ -159,7 +169,6 @@ export const Edit = React.memo<{
                   checked={data.isActive}
                   onChange={handleChange}
                   name="isActive"
-                  color="primary"
                 />
               }
               label="Is Active"
@@ -204,7 +213,13 @@ export const Edit = React.memo<{
       </ItemContent>
       <Bottombar>
         <Grid item>
-          <Button onClick={handleSave} variant="contained" color="primary">
+          <Button
+            onClick={handleSave}
+            variant="contained"
+            color="primary"
+            disabled={!isValid}
+            startIcon={<SaveIcon />}
+          >
             {mode === "add" ? "Add" : "Save"}
           </Button>
         </Grid>

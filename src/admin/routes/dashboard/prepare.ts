@@ -1,3 +1,8 @@
-import Component from "./component";
+import { Prepare } from "./types";
 
-export const prepare = () => Component;
+const getDefault = <T>({ default: d }: { default: T }): T => d;
+
+export const prepare: Prepare = ({ sort }) =>
+  sort
+    ? import("./sort").then(getDefault)
+    : import("./component").then(getDefault);

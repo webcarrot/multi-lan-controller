@@ -1,9 +1,9 @@
 import {
   listPlaces,
   listDevices,
+  getDeviceStatus,
 } from "@webcarrot/multi-lan-controller/common/db";
-import { getDeviceStatus } from "../../device";
-import { DeviceStatus } from "../../device/types";
+import { DeviceStatus } from "@webcarrot/multi-lan-controller/common/device/types";
 import { AdminApiFunction } from "../types";
 import { DashboardDevice, DashboardPlace } from "./types";
 
@@ -14,35 +14,21 @@ export const status: AdminApiFunction<null, ReadonlyArray<DashboardPlace>> =
     if (user.places !== "all") {
       places = places.filter(({ id }) => user.places.includes(id));
     }
-    return (
-      await Promise.all(
-        places
-          .filter(({ isActive }) => isActive)
-          .map(async (place): Promise<DashboardPlace> => {
+    return places
+      .filter(({ isActive }) => isActive)
+      .map<DashboardPlace>((place) => ({
+        ...place,
+        devices: devices
+          .filter(({ placeId, isActive }) => placeId === place.id && isActive)
+          .map((device): DashboardDevice => {
+            const status: DeviceStatus = getDeviceStatus(dbAccess, device);
             return {
-              ...place,
-              devices: await Promise.all(
-                devices
-                  .filter(
-                    ({ placeId, isActive }) => placeId === place.id && isActive
-                  )
-                  .map(async (device): Promise<DashboardDevice> => {
-                    let status: DeviceStatus;
-                    let isOnline = false;
-                    try {
-                      status = await getDeviceStatus(device);
-                      isOnline = true;
-                    } catch (_) {}
-                    return {
-                      id: device.id,
-                      name: device.name,
-                      isOnline,
-                      status,
-                    };
-                  })
-              ),
+              id: device.id,
+              name: device.name,
+              isOnline: status !== null,
+              status,
             };
-          })
-      )
-    ).filter((place) => place.devices.length > 0);
+          }),
+      }))
+      .filter((place) => place.devices.length > 0);
   };

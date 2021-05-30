@@ -1,4 +1,4 @@
-import { DeviceStatus } from "../../device/types";
+import { DeviceStatus } from "@webcarrot/multi-lan-controller/common/device/types";
 
 export type DashboardDevice = {
   readonly id: string;

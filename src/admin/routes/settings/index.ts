@@ -3,18 +3,8 @@ import { make as makeMatch } from "@webcarrot/router-match";
 
 import { Route, Match } from "./types";
 import { RouteContext } from "../types";
-import { eq, oneOf, shape } from "@webcarrot/parse";
 
-export const parseMatch = oneOf<Match>([
-  shape({
-    method: eq<"GET">("GET"),
-  }),
-]);
-
-const { match, build } = makeMatch<Match, RouteContext>(
-  ["/settings"],
-  parseMatch
-);
+const { match, build } = makeMatch<Match, RouteContext>(["/settings"]);
 
 export const route: Route = makeRoute(
   "settings",

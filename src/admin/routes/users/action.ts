@@ -1,14 +1,19 @@
-import { Action } from "./types";
+import { RouteAction } from "./types";
 import { Redirection, Success } from "@webcarrot/router";
 import { Mode } from "../types";
 import { User } from "@webcarrot/multi-lan-controller/common/db/types";
 
-export const action: Action = async (payload, params, { route, adminApi }) => {
+export const action: RouteAction = async (
+  payload,
+  params,
+  { route, adminApi }
+) => {
   let item: User = null;
   let mode: Mode = "list";
   let title: string;
   const list = await adminApi("Users/List", null);
   const places = await adminApi("Places/List", null);
+  const actions = await adminApi("Actions/List", null);
   if (params && params.mode) {
     switch (params.mode) {
       case "add":
@@ -39,6 +44,7 @@ export const action: Action = async (payload, params, { route, adminApi }) => {
     item,
     list,
     places,
+    actions,
     mode,
   };
 };

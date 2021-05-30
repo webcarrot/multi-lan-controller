@@ -19,6 +19,8 @@ const Component: ComponentInt = ({ output }) => {
       <Item>
         <Edit
           settings={output.settings}
+          actions={output.actions}
+          dashboard={output.dashboard}
           onSave={handleSave}
           title={output.title}
         />

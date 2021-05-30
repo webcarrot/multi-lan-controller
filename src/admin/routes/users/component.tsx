@@ -36,6 +36,7 @@ const Component: ComponentInt = ({ output }) => {
           onSave={handleSave}
           title={output.title}
           places={output.places}
+          actions={output.actions}
         />
       );
       break;
@@ -47,6 +48,7 @@ const Component: ComponentInt = ({ output }) => {
           onSave={handleSave}
           title={output.title}
           places={output.places}
+          actions={output.actions}
         />
       );
       break;

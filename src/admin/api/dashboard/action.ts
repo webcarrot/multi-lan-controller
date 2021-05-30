@@ -3,7 +3,10 @@ import {
   listDevices,
   getActionById,
 } from "@webcarrot/multi-lan-controller/common/db";
-import { makeQuery, performAction } from "../../device";
+import {
+  makeQuery,
+  performAction,
+} from "@webcarrot/multi-lan-controller/common/device";
 import { AdminApiFunction } from "../types";
 
 export const action: AdminApiFunction<
@@ -17,7 +20,10 @@ export const action: AdminApiFunction<
   let devices = await listDevices(dbAccess);
   const action = await getActionById(dbAccess, actionId);
 
-  if (!action) {
+  if (
+    !action ||
+    (user.actions !== "all" && !user.actions.includes(action.id))
+  ) {
     return null;
   }
 

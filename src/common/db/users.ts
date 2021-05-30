@@ -73,6 +73,7 @@ export const login = async (
       password,
       name: "Administrator",
       places: "all",
+      actions: "all",
       type: "admin",
     });
   }

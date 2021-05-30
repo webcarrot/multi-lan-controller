@@ -1,11 +1,13 @@
+import { DeviceStatus, DeviceStatusValues } from "../device/types";
+
 export type DbAccess = {
   readonly read: () => Promise<Db>;
   readonly save: (cb: (data: Db) => Promise<Db>) => Promise<Db>;
+  readonly status: () => { [key: string]: DeviceStatus };
 };
+export type DeviceOutNo = 0 | 1 | 2 | 3 | 4;
 
 export type UserType = "admin" | "normal";
-
-export type DeviceOutNo = 0 | 1 | 2 | 3 | 4;
 
 export type User = {
   readonly id: string;
@@ -14,6 +16,7 @@ export type User = {
   readonly password: string;
   readonly type: UserType;
   readonly places: ReadonlyArray<string> | "all";
+  readonly actions: ReadonlyArray<string> | "all";
   readonly isActive: boolean;
 };
 
@@ -47,13 +50,10 @@ export type Action = {
   readonly toChange: ReadonlyArray<ActionChange>;
 };
 
-export type OutSetting = {
-  readonly isActive: boolean;
-  readonly name: string;
-};
-
 export type Settings = {
-  readonly out: [OutSetting, OutSetting, OutSetting, OutSetting, OutSetting];
+  readonly [key in DeviceStatusValues]: string;
+} & {
+  readonly cols: ReadonlyArray<DeviceStatusValues>;
 };
 
 export type Db = {

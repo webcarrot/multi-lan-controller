@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ActiveOut, Component as ComponentInt } from "./types";
+import { Component as ComponentInt } from "./types";
 import {
   Bottombar,
   Item,
@@ -29,14 +29,12 @@ import {
 import { ReactAdminApiContext } from "../../api/context";
 import { SIGNOUT_ENDPOINT } from "@webcarrot/multi-lan-controller/endpoints";
 import LogoutIcon from "@material-ui/icons/ExitToApp";
-import SortIcon from "@material-ui/icons/Sort";
 
 import OnlineIcon from "@material-ui/icons/Power";
 import OfflineIconIcon from "@material-ui/icons/PowerOff";
 import ActiveIcon from "@material-ui/icons/CheckBox";
 import InactiveIcon from "@material-ui/icons/CheckBoxOutlineBlank";
-import { DeviceOutNo } from "@webcarrot/multi-lan-controller/common/db/types";
-import { Link } from "../components";
+import { Settings } from "@webcarrot/multi-lan-controller/common/db/types";
 
 const CHECKBOX_SIZE = 40;
 const ONLINE_SIZE = 40;
@@ -51,6 +49,15 @@ const Component: ComponentInt = ({
   const [data, setData] = React.useState(dashboards);
   const adminApi = React.useContext(ReactAdminApiContext);
   const user = React.useContext(UserContext);
+
+  const filteredActions = React.useMemo(
+    () =>
+      user.actions === "all"
+        ? actions
+        : actions.filter(({ id }) => user.actions.includes(id)),
+    [user, actions]
+  );
+
   React.useEffect(() => {
     let onData = setData;
     let fetch = () => {
@@ -63,6 +70,7 @@ const Component: ComponentInt = ({
       onData = () => {};
     };
   }, [adminApi]);
+
   const devicesIds = React.useMemo(
     () =>
       data.reduce(
@@ -93,20 +101,6 @@ const Component: ComponentInt = ({
       );
     }
   }, [setSelected, allSelected, devicesIds]);
-
-  const activeOut = React.useMemo<ReadonlyArray<ActiveOut>>(
-    () =>
-      settings.out.reduce<Array<ActiveOut>>((out, { isActive, name }, no) => {
-        if (isActive) {
-          out.push({
-            name,
-            no: no as DeviceOutNo,
-          });
-        }
-        return out;
-      }, []),
-    [settings]
-  );
 
   const handleCallAction = React.useCallback(
     (actionId: string) => {
@@ -140,10 +134,11 @@ const Component: ComponentInt = ({
                     />
                   </TableCell>
                   <TableCell align="left">
-                    {actions.map((action) => (
+                    {filteredActions.map((action) => (
                       <Action
                         key={action.id}
                         onCall={handleCallAction}
+                        disabled={!selected.length}
                         {...action}
                       />
                     ))}
@@ -160,32 +155,20 @@ const Component: ComponentInt = ({
               {...place}
               selected={selected}
               onSelect={setSelected}
-              activeOut={activeOut}
+              settings={settings}
             />
           ))}
         </ItemContent>
         <Bottombar>
           <Grid item>
-            {user.type === "normal" ? (
-              <Button
-                component="a"
-                href={`/${SIGNOUT_ENDPOINT}`}
-                variant="contained"
-                startIcon={<LogoutIcon />}
-              >
-                Logout
-              </Button>
-            ) : (
-              <Button
-                component={Link}
-                match={{ mode: "sort" }}
-                route="dashboard"
-                variant="contained"
-                startIcon={<SortIcon />}
-              >
-                Sort settings
-              </Button>
-            )}
+            <Button
+              component="a"
+              href={`/${SIGNOUT_ENDPOINT}`}
+              variant="contained"
+              startIcon={<LogoutIcon />}
+            >
+              Logout
+            </Button>
           </Grid>
         </Bottombar>
       </Item>
@@ -196,8 +179,9 @@ const Component: ComponentInt = ({
 const Action = React.memo<
   DashboardAction & {
     onCall: (id: string) => void;
+    disabled: boolean;
   }
->(({ id, name, color, textColor, onCall }) => {
+>(({ id, name, color, textColor, onCall, disabled }) => {
   const handleCallAction = React.useCallback(() => onCall(id), [id, onCall]);
   return (
     <Button
@@ -205,7 +189,12 @@ const Action = React.memo<
       variant="contained"
       size="small"
       color="secondary"
-      style={{ background: color, color: textColor, marginRight: "1em" }}
+      style={
+        disabled
+          ? { marginRight: "1em" }
+          : { background: color, color: textColor, marginRight: "1em" }
+      }
+      disabled={disabled}
     >
       {name}
     </Button>
@@ -216,9 +205,9 @@ const Place = React.memo<
   DashboardPlace & {
     readonly selected: ReadonlyArray<string>;
     readonly onSelect: React.Dispatch<React.SetStateAction<readonly string[]>>;
-    readonly activeOut: ReadonlyArray<ActiveOut>;
+    readonly settings: Settings;
   }
->(({ name, devices, selected, onSelect, activeOut }) => {
+>(({ name, devices, selected, onSelect, settings }) => {
   const devicesIds = React.useMemo(
     () => devices.map(({ id }) => id),
     devices.map(({ id }) => id)
@@ -269,9 +258,9 @@ const Place = React.memo<
               <TableCell align="center" width={ONLINE_SIZE}>
                 OL
               </TableCell>
-              {activeOut.map(({ name, no }) => (
+              {settings.cols.map((col, no) => (
                 <TableCell align="center" key={no} width={STATUS_SIZE}>
-                  {name}
+                  {settings[col]}
                 </TableCell>
               ))}
             </TableRow>
@@ -283,7 +272,7 @@ const Place = React.memo<
                 {...device}
                 selected={selected.includes(device.id)}
                 onSelect={handleSelect}
-                activeOut={activeOut}
+                settings={settings}
               />
             ))}
           </TableBody>
@@ -297,9 +286,9 @@ const Device = React.memo<
   DashboardDevice & {
     readonly selected: boolean;
     readonly onSelect: (id: string) => void;
-    readonly activeOut: ReadonlyArray<ActiveOut>;
+    readonly settings: Settings;
   }
->(({ id, isOnline, name, onSelect, selected, status, activeOut }) => {
+>(({ id, isOnline, name, onSelect, selected, status, settings }) => {
   const handleToggle = React.useCallback(() => onSelect(id), [id, onSelect]);
   return (
     <TableRow>
@@ -316,13 +305,17 @@ const Device = React.memo<
           <OfflineIconIcon fontSize="small" />
         )}
       </TableCell>
-      {activeOut.map(({ no }) => (
+      {settings.cols.map((col, no) => (
         <TableCell align="center" key={no} width={STATUS_SIZE}>
           {isOnline ? (
-            status.out[no] ? (
-              <ActiveIcon fontSize="small" />
+            typeof status[col] === "boolean" ? (
+              status[col] ? (
+                <ActiveIcon fontSize="small" style={{ fill: "green" }} />
+              ) : (
+                <InactiveIcon fontSize="small" style={{ fill: "red" }} />
+              )
             ) : (
-              <InactiveIcon fontSize="small" />
+              status[col]
             )
           ) : (
             <OfflineIconIcon fontSize="small" />

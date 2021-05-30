@@ -1,6 +1,7 @@
 import { parseDevice } from "./parse";
 import { DbAccess, Device } from "./types";
 import { v4 } from "uuid";
+import { DeviceStatus } from "../device/types";
 
 export const list = async (access: DbAccess): Promise<ReadonlyArray<Device>> =>
   (await access.read()).devices;
@@ -35,3 +36,6 @@ export const save = async (access: DbAccess, item: Device): Promise<Device> => {
   });
   return itemToSave;
 };
+
+export const status = (access: DbAccess, item: Device): DeviceStatus =>
+  access.status()[item.id] || null;

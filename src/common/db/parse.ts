@@ -11,13 +11,13 @@ import {
 } from "@webcarrot/parse";
 import { useMemo } from "react";
 import { validate } from "uuid";
+import { DeviceStatusValues } from "../device/types";
 import {
   Action,
   ActionChange,
   ActionChangeType,
   Device,
   DeviceOutNo,
-  OutSetting,
   Place,
   Settings,
   User,
@@ -46,7 +46,8 @@ export const parseUser = shape<User>({
   login: string({ minLength: 2 }),
   name: string({ minLength: 2 }),
   password: string({ optional: true, nullable: true, default: "" }),
-  places: oneOf([eq("all"), array(parseId)]),
+  places: oneOf([eq("all"), array(parseId)], { default: "all" }),
+  actions: oneOf([eq("all"), array(parseId)], { default: "all" }),
   type: oneOf([eq("admin"), eq("normal")], { default: "normal" }),
   isActive: boolean({ default: true }),
 }).then(
@@ -93,21 +94,76 @@ export const parseAction = shape<Action>({
   ).then(array(parseActionChange)),
 });
 
-export const parseOutSetting = shape<OutSetting>({
-  isActive: boolean(),
-  name: string({ minLength: 1 }),
-});
+export const validOutKeys: ReadonlyArray<DeviceStatusValues> = [
+  "out0",
+  "out1",
+  "out2",
+  "out3",
+  "out4",
+  "out5",
+];
+
+export const validDiKeys: ReadonlyArray<DeviceStatusValues> = [
+  "di0",
+  "di1",
+  "di2",
+  "di3",
+];
+
+export const validIaKeys: ReadonlyArray<DeviceStatusValues> = [
+  "ia0",
+  "ia1",
+  "ia2",
+  "ia3",
+  "ia4",
+  "ia5",
+  "ia6",
+  "ia7",
+  "ia8",
+  "ia9",
+  "ia10",
+  "ia11",
+  "ia12",
+  "ia13",
+  "ia14",
+  "ia15",
+  "ia16",
+  "ia17",
+  "ia18",
+  "ia19",
+];
+
+export const validSecKeys: ReadonlyArray<DeviceStatusValues> = [
+  "sec0",
+  "sec1",
+  "sec2",
+  "sec3",
+  "sec4",
+];
+
+export const validMiscKeys: ReadonlyArray<DeviceStatusValues> = [
+  "freq",
+  "duty",
+  "pwm",
+];
+
+export const validSettingsKeys: ReadonlyArray<DeviceStatusValues> = [].concat(
+  validOutKeys,
+  validDiKeys,
+  validIaKeys,
+  validSecKeys,
+  validMiscKeys
+);
 
 export const parseSettings = shape<Settings>({
-  out: array(parseOutSetting).then(
-    make<Settings["out"], ReadonlyArray<OutSetting>>((data, path) => {
-      if (data.length >= 5) {
-        return data.slice(0, 5) as Settings["out"];
-      } else {
-        throw error("Invalid out settings", path, data);
-      }
-    })
+  ...validSettingsKeys.reduce<{ [key in DeviceStatusValues]: Parser<string> }>(
+    (out, key) => {
+      out[key] = string({ default: key.toUpperCase() });
+      return out;
+    },
+    {} as { [key in DeviceStatusValues]: Parser<string> }
   ),
+  cols: array(oneOf(validSettingsKeys.map((key) => eq(key)))),
 });
 
 export const useIsValid = <T>(data: T, validator: Parser<T>) =>

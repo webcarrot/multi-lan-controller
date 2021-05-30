@@ -1,13 +1,13 @@
 import {
   Button,
   Checkbox,
+  Divider,
   FormControl,
   FormControlLabel,
-  FormGroup,
-  FormLabel,
   Grid,
   InputLabel,
   MenuItem,
+  Paper,
   Select,
   TextField,
 } from "@material-ui/core";
@@ -17,7 +17,11 @@ import {
 } from "@webcarrot/multi-lan-controller/common/db/parse";
 import SaveIcon from "@material-ui/icons/Save";
 
-import { Place, User } from "@webcarrot/multi-lan-controller/common/db/types";
+import {
+  Place,
+  Action,
+  User,
+} from "@webcarrot/multi-lan-controller/common/db/types";
 import * as React from "react";
 import { ReactAdminApiContext } from "../../api/context";
 import {
@@ -35,6 +39,7 @@ const NEW_USER: User = {
   password: "",
   isActive: true,
   places: "all",
+  actions: "all",
   type: "normal",
 };
 
@@ -44,7 +49,8 @@ export const Edit = React.memo<{
   readonly onSave: (id: string, mode: Mode) => void;
   readonly title: string;
   readonly places: ReadonlyArray<Place>;
-}>(({ mode, item, title, onSave, places }) => {
+  readonly actions: ReadonlyArray<Action>;
+}>(({ mode, item, title, onSave, places, actions }) => {
   const [data, setData] = useAutoState<User>(item || NEW_USER);
 
   const adminApi = React.useContext(ReactAdminApiContext);
@@ -102,6 +108,33 @@ export const Edit = React.memo<{
               return {
                 ...data,
                 places,
+              };
+            });
+          }
+          break;
+        }
+        case "actions": {
+          const value = ev.target.value;
+          if (value === "all") {
+            const checked = ev.target.checked;
+            setData((data) => ({
+              ...data,
+              actions: checked ? "all" : [],
+            }));
+          } else {
+            const checked = ev.target.checked;
+            setData((data) => {
+              let actions = data.actions instanceof Array ? data.actions : [];
+              if (checked) {
+                if (!actions.includes(value)) {
+                  actions = [...actions, value];
+                }
+              } else {
+                actions = actions.filter((id) => id !== value);
+              }
+              return {
+                ...data,
+                actions,
               };
             });
           }
@@ -175,39 +208,74 @@ export const Edit = React.memo<{
             />
           </Grid>
           <Grid item xs={12}>
-            <FormControl component="fieldset">
-              <FormLabel component="legend">Places</FormLabel>
-              <FormGroup>
-                <FormControlLabel
-                  key="all"
-                  control={
-                    <Checkbox
-                      checked={data.places === "all"}
-                      onChange={handleChange}
-                      value="all"
-                      name="places"
+            <Paper variant="outlined" style={{ padding: "8px" }}>
+              <FormControlLabel
+                key="all"
+                control={
+                  <Checkbox
+                    checked={data.places === "all"}
+                    onChange={handleChange}
+                    value="all"
+                    name="places"
+                  />
+                }
+                label="All places"
+              />
+              {data.places !== "all" ? (
+                <>
+                  <Divider />
+                  {places.map(({ id, name }) => (
+                    <FormControlLabel
+                      key={id}
+                      control={
+                        <Checkbox
+                          checked={data.places.includes(id)}
+                          onChange={handleChange}
+                          value={id}
+                          name="places"
+                        />
+                      }
+                      label={name}
                     />
-                  }
-                  label="All places"
-                />
-                {data.places !== "all"
-                  ? places.map(({ id, name }) => (
-                      <FormControlLabel
-                        key={id}
-                        control={
-                          <Checkbox
-                            checked={data.places.includes(id)}
-                            onChange={handleChange}
-                            value={id}
-                            name="places"
-                          />
-                        }
-                        label={name}
-                      />
-                    ))
-                  : null}
-              </FormGroup>
-            </FormControl>
+                  ))}
+                </>
+              ) : null}
+            </Paper>
+          </Grid>
+          <Grid item xs={12}>
+            <Paper variant="outlined" style={{ padding: "8px" }}>
+              <FormControlLabel
+                key="all"
+                control={
+                  <Checkbox
+                    checked={data.actions === "all"}
+                    onChange={handleChange}
+                    value="all"
+                    name="actions"
+                  />
+                }
+                label="All actions"
+              />
+              {data.actions !== "all" ? (
+                <>
+                  <Divider />
+                  {actions.map(({ id, name }) => (
+                    <FormControlLabel
+                      key={id}
+                      control={
+                        <Checkbox
+                          checked={data.actions.includes(id)}
+                          onChange={handleChange}
+                          value={id}
+                          name="actions"
+                        />
+                      }
+                      label={name}
+                    />
+                  ))}
+                </>
+              ) : null}
+            </Paper>
           </Grid>
         </Grid>
       </ItemContent>

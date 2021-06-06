@@ -5,10 +5,10 @@ export type DeviceStatus = {
   readonly out3: boolean;
   readonly out4: boolean;
   readonly out5: boolean;
-  readonly di0: boolean;
-  readonly di1: boolean;
-  readonly di2: boolean;
-  readonly di3: boolean;
+  readonly di0: string;
+  readonly di1: string;
+  readonly di2: string;
+  readonly di3: string;
   readonly ia0: number;
   readonly ia1: number;
   readonly ia2: number;

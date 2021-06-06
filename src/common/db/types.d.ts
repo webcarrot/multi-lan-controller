@@ -54,6 +54,7 @@ export type Settings = {
   readonly [key in DeviceStatusValues]: string;
 } & {
   readonly cols: ReadonlyArray<DeviceStatusValues>;
+  readonly reverseOut: boolean;
 };
 
 export type Db = {

@@ -24,6 +24,7 @@ import {
   Action,
   ActionChangeType,
   DeviceOutNo,
+  Settings,
 } from "@webcarrot/multi-lan-controller/common/db/types";
 import * as React from "react";
 import { ReactAdminApiContext } from "../../api/context";
@@ -51,7 +52,8 @@ export const Edit = React.memo<{
   readonly item?: Action;
   readonly onSave: (id: string, mode: Mode) => void;
   readonly title: string;
-}>(({ mode, item, title, onSave }) => {
+  readonly settings: Settings;
+}>(({ mode, item, title, onSave, settings }) => {
   const [data, setData] = useAutoState<Action>(item || NEW_DEVICE);
   const adminApi = React.useContext(ReactAdminApiContext);
   const isValid = useIsValid(data, parseAction);
@@ -156,9 +158,8 @@ export const Edit = React.memo<{
               <Table size="small">
                 <TableHead>
                   <TableRow>
-                    <TableCell align="right" width={50}>
-                      OUT
-                    </TableCell>
+                    <TableCell align="right">Name</TableCell>
+                    <TableCell align="right" width={30}></TableCell>
                     <TableCell align="left">Action</TableCell>
                   </TableRow>
                 </TableHead>
@@ -167,6 +168,8 @@ export const Edit = React.memo<{
                     <ActionToChangeEdit
                       key={no}
                       no={no}
+                      label={settings[`out${no}` as "out0"]}
+                      reverseOut={settings.reverseOut}
                       value={
                         data.toChange.find(({ out }) => out === no)?.change
                       }
@@ -196,30 +199,51 @@ export const Edit = React.memo<{
   );
 });
 
-const OPTIONS = [
+const OPTIONS_NORMAL = [
   {
     value: "none",
     label: "No action",
   },
   {
     value: "on",
-    label: "?->1 - on",
+    label: "ON: ?->1",
   },
   {
     value: "off",
-    label: "?->0 - off",
+    label: "OFF: ?->0",
   },
   {
     value: "toggle",
-    label: "0->1 or 1->0 - toggle",
+    label: "TOGGLE: 0->1 or 1->0",
+  },
+];
+
+const OPTIONS_REVERTED = [
+  {
+    value: "none",
+    label: "No action",
+  },
+  {
+    value: "on",
+    label: "ON: ?->0",
+  },
+  {
+    value: "off",
+    label: "OFF: ?->1",
+  },
+  {
+    value: "toggle",
+    label: "TOGGLE: 0->1 or 1->0",
   },
 ];
 
 const ActionToChangeEdit = React.memo<{
   no: DeviceOutNo;
   value?: ActionChangeType;
+  reverseOut: boolean;
+  label: string;
   onChange: (no: DeviceOutNo, data?: ActionChangeType) => void;
-}>(({ no, value, onChange }) => {
+}>(({ no, value, label, reverseOut, onChange }) => {
   const handleChange = React.useCallback(
     (ev: React.ChangeEvent<HTMLInputElement>) => {
       switch (ev.target.value) {
@@ -234,17 +258,19 @@ const ActionToChangeEdit = React.memo<{
     },
     [no, value, onChange]
   );
+  const OPTIONS = reverseOut ? OPTIONS_REVERTED : OPTIONS_NORMAL;
 
   return (
     <TableRow>
-      <TableCell align="right" width={50}>
-        OUT{no}
+      <TableCell align="right">{label}</TableCell>
+      <TableCell align="center" width={30}>
+        {no}
       </TableCell>
       <TableCell align="left">
         <Select
-          id="place-select"
+          id={`to-change-${no}`}
           value={value || "none"}
-          name="placeId"
+          name="to-change"
           onChange={handleChange}
           fullWidth
         >

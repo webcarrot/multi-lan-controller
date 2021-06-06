@@ -7,7 +7,10 @@ import {
 
 import { Mode, RouteContext } from "../types";
 import { AppContext } from "@webcarrot/multi-lan-controller/admin/app/types";
-import { Action } from "@webcarrot/multi-lan-controller/common/db/types";
+import {
+  Action,
+  Settings,
+} from "@webcarrot/multi-lan-controller/common/db/types";
 
 export type ID = "actions";
 
@@ -32,6 +35,7 @@ export type Output = GenericOutput & {
   readonly mode: Mode;
   readonly list: ReadonlyArray<Action>;
   readonly item: Action;
+  readonly settings: Settings;
 };
 
 export type Component = ComponentInt<ID, Match, Output, RouteContext>;

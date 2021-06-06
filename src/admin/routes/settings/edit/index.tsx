@@ -1,22 +1,8 @@
-import {
-  Button,
-  Grid,
-  Paper,
-  Tab,
-  Tabs,
-  TextField,
-  Typography,
-} from "@material-ui/core";
-import SaveIcon from "@material-ui/icons/Save";
+import { Tab, Tabs } from "@material-ui/core";
 
 import {
   parseSettings,
   useIsValid,
-  validDiKeys,
-  validIaKeys,
-  validMiscKeys,
-  validOutKeys,
-  validSecKeys,
   validSettingsKeys,
 } from "@webcarrot/multi-lan-controller/common/db/parse";
 import {
@@ -26,16 +12,12 @@ import {
 import { DeviceStatusValues } from "@webcarrot/multi-lan-controller/common/device/types";
 import * as React from "react";
 import { ReactAdminApiContext } from "../../../api/context";
-import {
-  Bottombar,
-  ItemContent,
-  Toolbar,
-  useAutoState,
-} from "../../../components";
+import { Toolbar, useAutoState } from "../../../components";
 
 import { EditCols } from "./cols";
 import { DashboardPlace } from "@webcarrot/multi-lan-controller/admin/api/dashboard/types";
 import { EditSort } from "./sort";
+import { EditNames } from "./names";
 
 export const Edit = React.memo<{
   readonly settings: Settings;
@@ -47,7 +29,7 @@ export const Edit = React.memo<{
   const [data, setData] = useAutoState<Settings>(settings);
   const adminApi = React.useContext(ReactAdminApiContext);
   const isValid = useIsValid(data, parseSettings);
-  const [tab, setTab] = React.useState<"names" | "cols" | "sort">("sort");
+  const [tab, setTab] = React.useState<"names" | "cols" | "sort">("names");
 
   const handleSave = React.useCallback(() => {
     if (isValid) {
@@ -78,13 +60,21 @@ export const Edit = React.memo<{
 
   const handleNamesChange = React.useCallback(
     (ev: React.ChangeEvent<HTMLInputElement>) => {
-      const name = ev.target.name as DeviceStatusValues;
-      const value = ev.target.value;
-      if (validSettingsKeys.includes(name)) {
+      if (ev.target.name === "reverseOut") {
+        const value = ev.target.checked;
         setData((data) => ({
           ...data,
-          [name]: value,
+          reverseOut: value,
         }));
+      } else {
+        const name = ev.target.name as DeviceStatusValues;
+        const value = ev.target.value;
+        if (validSettingsKeys.includes(name)) {
+          setData((data) => ({
+            ...data,
+            [name]: value,
+          }));
+        }
       }
     },
     [setData]
@@ -127,103 +117,12 @@ export const Edit = React.memo<{
           onChange={(_, value) => setTab(value)}
           variant="standard"
         >
+          <Tab value="names" label="Names" />
           <Tab value="sort" label="Sort" />
           <Tab value="cols" label="Cols" />
-          <Tab value="names" label="Names" />
         </Tabs>
       </Toolbar>
       {content}
-    </>
-  );
-});
-
-const EditNames = React.memo<{
-  data: Settings;
-  onChange: React.ChangeEventHandler;
-  onSave: () => void;
-  isValid: boolean;
-}>(({ data, onChange, onSave, isValid }) => {
-  return (
-    <>
-      <ItemContent>
-        <EditNamesGroup
-          data={data}
-          onChange={onChange}
-          name="OUT"
-          keys={validOutKeys}
-        />
-        <EditNamesGroup
-          data={data}
-          onChange={onChange}
-          name="DI"
-          keys={validDiKeys}
-        />
-        <EditNamesGroup
-          data={data}
-          onChange={onChange}
-          name="IA"
-          keys={validIaKeys}
-        />
-        <EditNamesGroup
-          data={data}
-          onChange={onChange}
-          name="SEC"
-          keys={validSecKeys}
-        />
-        <EditNamesGroup
-          data={data}
-          onChange={onChange}
-          name="MISC"
-          keys={validMiscKeys}
-        />
-      </ItemContent>
-      <Bottombar>
-        <Grid item>
-          <Button
-            onClick={onSave}
-            variant="contained"
-            color="primary"
-            disabled={!isValid}
-            startIcon={<SaveIcon />}
-          >
-            Save
-          </Button>
-        </Grid>
-      </Bottombar>
-    </>
-  );
-});
-
-const EditNamesGroup = React.memo<{
-  data: Settings;
-  onChange: React.ChangeEventHandler;
-  name: string;
-  keys: ReadonlyArray<DeviceStatusValues>;
-}>(({ data, onChange, name, keys }) => {
-  return (
-    <>
-      <Typography variant="h6">{name}</Typography>
-      <Grid
-        container
-        spacing={2}
-        style={{
-          margin: "8px 0 16px 0",
-        }}
-        component={Paper}
-        variant="outlined"
-      >
-        {keys.map((key) => (
-          <Grid item xs={6} key={key}>
-            <TextField
-              label={`${key.toUpperCase()} name`}
-              name={key}
-              value={data[key]}
-              onChange={onChange}
-              fullWidth
-            />
-          </Grid>
-        ))}
-      </Grid>
     </>
   );
 });

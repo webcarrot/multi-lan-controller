@@ -35,12 +35,20 @@ import OfflineIconIcon from "@material-ui/icons/PowerOff";
 import ActiveIcon from "@material-ui/icons/CheckBox";
 import InactiveIcon from "@material-ui/icons/CheckBoxOutlineBlank";
 import { Settings } from "@webcarrot/multi-lan-controller/common/db/types";
+import { DeviceStatusValues } from "@webcarrot/multi-lan-controller/common/device/types";
+import { useSnackbar } from "notistack";
 
 const CHECKBOX_SIZE = 40;
 const ONLINE_SIZE = 40;
 const STATUS_SIZE = 150;
 
 const TABLE_STYLE = { margin: "8px 0" };
+
+const prepareText = (template: string, data: { [key in string]: string }) =>
+  Object.keys(data).reduce(
+    (out, key) => out.replace(`%${key}%`, data[key]),
+    template
+  );
 
 const Component: ComponentInt = ({
   output: { dashboards, settings, actions, title },
@@ -49,7 +57,10 @@ const Component: ComponentInt = ({
   const [data, setData] = React.useState(dashboards);
   const adminApi = React.useContext(ReactAdminApiContext);
   const user = React.useContext(UserContext);
+  const notificationsState = React.useRef<Set<string>>(null);
+  const audioEl = React.useRef<HTMLAudioElement>(null);
 
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const filteredActions = React.useMemo(
     () =>
       user.actions === "all"
@@ -57,6 +68,132 @@ const Component: ComponentInt = ({
         : actions.filter(({ id }) => user.actions.includes(id)),
     [user, actions]
   );
+
+  const newNotificationsState = new Set<string>();
+  settings.notifications.forEach((notification) => {
+    switch (notification.type) {
+      case "ol":
+        data.forEach(({ devices }) =>
+          devices.forEach(({ id, isOnline }) =>
+            newNotificationsState.add(`${id}/ol/${isOnline}`)
+          )
+        );
+        break;
+      case "out": {
+        const outId = `out${notification.no}` as DeviceStatusValues;
+        data.forEach(({ devices }) =>
+          devices
+            .filter(({ isOnline }) => isOnline)
+            .forEach(({ id, status }) =>
+              newNotificationsState.add(`${id}/out/${status[outId]}`)
+            )
+        );
+        break;
+      }
+    }
+  });
+
+  if (!notificationsState.current) {
+    notificationsState.current = newNotificationsState;
+  }
+
+  const notificationsStateDiff = [...notificationsState.current.values()]
+    .filter((v) => newNotificationsState.has(v))
+    .concat(
+      [...newNotificationsState.values()].filter((v) =>
+        notificationsState.current.has(v)
+      )
+    )
+    .join("&");
+
+  React.useEffect(() => {
+    let playSound = false;
+    const toAlert: string[] = [];
+    const toSpeak: string[] = [];
+    settings.notifications.forEach((notification) => {
+      switch (notification.type) {
+        case "ol":
+          data.forEach(({ devices, name: place }) =>
+            devices.forEach(({ id, isOnline, name: device }) => {
+              const checkKey = `${id}/ol/${isOnline}`;
+              if (
+                isOnline === notification.status &&
+                !notificationsState.current.has(checkKey) &&
+                newNotificationsState.has(checkKey)
+              ) {
+                const text = prepareText(notification.template, {
+                  place,
+                  device,
+                });
+                if (notification.alert) {
+                  toAlert.push(text);
+                }
+                if (notification.speak) {
+                  toSpeak.push(text);
+                }
+                if (notification.playSound) {
+                  playSound = true;
+                }
+              }
+            })
+          );
+          break;
+        case "out": {
+          const outId = `out${notification.no}` as DeviceStatusValues;
+          data.forEach(({ devices, name: place }) =>
+            devices
+              .filter(({ isOnline }) => isOnline)
+              .forEach(({ id, status, name: device }) => {
+                const checkKey = `${id}/ol/${status[outId]}`;
+                if (
+                  status[outId] === notification.status &&
+                  !notificationsState.current.has(checkKey) &&
+                  newNotificationsState.has(checkKey)
+                ) {
+                  const text = prepareText(notification.template, {
+                    place,
+                    device,
+                  });
+                  if (notification.alert) {
+                    toAlert.push(text);
+                  }
+                  if (notification.speak) {
+                    toSpeak.push(text);
+                  }
+                  if (notification.playSound) {
+                    playSound = true;
+                  }
+                }
+              })
+          );
+          break;
+        }
+      }
+    });
+    if (typeof speechSynthesis === "undefined") {
+      toAlert.push(...toSpeak.filter((v) => !toAlert.includes(v)));
+    } else {
+      toSpeak.forEach((v) =>
+        speechSynthesis.speak(new SpeechSynthesisUtterance(v))
+      );
+    }
+    toAlert.forEach((v) => {
+      const key = enqueueSnackbar(v, {
+        variant: "info",
+        onClick: () => closeSnackbar(key),
+      });
+    });
+
+    if (playSound) {
+      if (!audioEl.current && typeof Audio !== "undefined") {
+        audioEl.current = new Audio("info.wav");
+      }
+      if (audioEl.current) {
+        audioEl.current.play();
+      }
+    }
+    notificationsState.current = newNotificationsState;
+  }, [notificationsStateDiff]);
 
   React.useEffect(() => {
     let onData = setData;

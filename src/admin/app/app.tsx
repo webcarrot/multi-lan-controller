@@ -22,7 +22,7 @@ export const App = ({ adminApiContext, route, user, rootPath }: AppProps) => {
     <UserContext.Provider value={user}>
       <ReactAdminApiContext.Provider value={adminApiContext}>
         <ThemeProvider theme={theme}>
-          <SnackbarProvider maxSnack={6} autoHideDuration={4000}>
+          <SnackbarProvider maxSnack={6} autoHideDuration={60000}>
             <ErrorHandler>
               <RouteContextProvider
                 ReactContext={ReactRouteContext}

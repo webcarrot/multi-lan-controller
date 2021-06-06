@@ -50,10 +50,38 @@ export type Action = {
   readonly toChange: ReadonlyArray<ActionChange>;
 };
 
+type SettingsNotificationBase<T extends string, E = {}> = {
+  readonly type: T;
+  readonly alert: boolean;
+  readonly speak: boolean;
+  readonly playSound: boolean;
+  readonly template: string;
+} & E;
+
+export type SettingsNotificationOL = SettingsNotificationBase<
+  "ol",
+  {
+    readonly status: boolean;
+  }
+>;
+
+export type SettingsNotificationOut = SettingsNotificationBase<
+  "out",
+  {
+    readonly no: 0 | 1 | 2 | 3 | 4 | 5;
+    readonly status: boolean;
+  }
+>;
+
+export type SettingsNotification =
+  | SettingsNotificationOL
+  | SettingsNotificationOut;
+
 export type Settings = {
   readonly [key in DeviceStatusValues]: string;
 } & {
   readonly cols: ReadonlyArray<DeviceStatusValues>;
+  readonly notifications: ReadonlyArray<SettingsNotification>;
   readonly reverseOut: boolean;
 };
 

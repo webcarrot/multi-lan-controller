@@ -4,6 +4,7 @@ import {
   shape,
   make,
   error,
+  number,
   boolean,
   eq,
   oneOf,
@@ -20,6 +21,9 @@ import {
   DeviceOutNo,
   Place,
   Settings,
+  SettingsNotification,
+  SettingsNotificationOL,
+  SettingsNotificationOut,
   User,
 } from "./types";
 
@@ -155,6 +159,32 @@ export const validSettingsKeys: ReadonlyArray<DeviceStatusValues> = [].concat(
   validMiscKeys
 );
 
+export const parseSettingsNotificationOL = shape<SettingsNotificationOL>({
+  type: eq("ol"),
+  alert: boolean({ default: false }),
+  playSound: boolean({ default: false }),
+  speak: boolean({ default: false }),
+  status: boolean({ default: false }),
+  template: string(),
+});
+
+export const parseSettingsNotificationOut = shape<SettingsNotificationOut>({
+  type: eq("out"),
+  no: number({ convert: true, min: 0, max: 5 }).then(
+    oneOf([eq(0), eq(1), eq(2), eq(3), eq(4), eq(5)])
+  ),
+  alert: boolean({ default: false }),
+  playSound: boolean({ default: false }),
+  speak: boolean({ default: false }),
+  status: boolean({ default: false }),
+  template: string(),
+});
+
+export const parseSettingsNotification = oneOf<SettingsNotification>([
+  parseSettingsNotificationOL,
+  parseSettingsNotificationOut,
+]);
+
 export const parseSettings = shape<Settings>({
   ...validSettingsKeys.reduce<{ [key in DeviceStatusValues]: Parser<string> }>(
     (out, key) => {
@@ -163,8 +193,9 @@ export const parseSettings = shape<Settings>({
     },
     {} as { [key in DeviceStatusValues]: Parser<string> }
   ),
-  cols: array(oneOf(validSettingsKeys.map((key) => eq(key)))),
+  cols: array(oneOf(validSettingsKeys.map((key) => eq(key))), { default: [] }),
   reverseOut: boolean({ default: true }),
+  notifications: array(parseSettingsNotification, { default: [] }),
 });
 
 export const useIsValid = <T>(data: T, validator: Parser<T>) =>

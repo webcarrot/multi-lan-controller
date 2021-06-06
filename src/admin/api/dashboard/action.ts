@@ -2,6 +2,7 @@ import {
   listPlaces,
   listDevices,
   getActionById,
+  readSettings,
 } from "@webcarrot/multi-lan-controller/common/db";
 import {
   makeQuery,
@@ -18,6 +19,8 @@ export const action: AdminApiFunction<
 > = async ({ actionId, devicesIds }, { dbAccess, user }) => {
   let places = await listPlaces(dbAccess);
   let devices = await listDevices(dbAccess);
+  const { reverseOut } = await readSettings(dbAccess);
+
   const action = await getActionById(dbAccess, actionId);
 
   if (
@@ -27,7 +30,7 @@ export const action: AdminApiFunction<
     return null;
   }
 
-  const query = makeQuery(action);
+  const query = makeQuery(action, reverseOut);
   if (!query) {
     return null;
   }

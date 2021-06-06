@@ -30,7 +30,14 @@ const Component: ComponentInt = ({ output }) => {
   );
   switch (output.mode) {
     case "add":
-      item = <Edit mode="add" onSave={handleSave} title={output.title} />;
+      item = (
+        <Edit
+          mode="add"
+          onSave={handleSave}
+          title={output.title}
+          settings={output.settings}
+        />
+      );
       break;
     case "edit":
       item = (
@@ -39,6 +46,7 @@ const Component: ComponentInt = ({ output }) => {
           item={output.item}
           onSave={handleSave}
           title={output.title}
+          settings={output.settings}
         />
       );
       break;

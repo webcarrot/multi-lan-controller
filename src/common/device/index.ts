@@ -28,12 +28,14 @@ const getConfig = (device: Device): AxiosRequestConfig => {
   return CACHE.get(device.id);
 };
 
-const isTrue = (v: string[]): boolean => v[0] === "1";
-const isUp = (v: string[]): boolean => v[0] === "up";
+const isTrue = (v: string[], reverseOut: boolean): boolean =>
+  v[0] === (reverseOut ? "1" : "0");
+const string = (v: string[]): string => v[0];
 const numeric = (v: string[]): number => parseInt(v[0]);
 
 export const getDeviceStatus = async (
-  device: Device
+  device: Device,
+  reverseOut: boolean
 ): Promise<DeviceStatus> => {
   const { data } = await axios.get(`${device.url}/st0.xml`, getConfig(device));
   const {
@@ -80,16 +82,16 @@ export const getDeviceStatus = async (
   } = await parseStringPromise(data);
 
   return {
-    out0: isTrue(out0),
-    out1: isTrue(out1),
-    out2: isTrue(out2),
-    out3: isTrue(out3),
-    out4: isTrue(out4),
-    out5: isTrue(out5),
-    di0: isUp(di0),
-    di1: isUp(di1),
-    di2: isUp(di2),
-    di3: isUp(di3),
+    out0: isTrue(out0, reverseOut),
+    out1: isTrue(out1, reverseOut),
+    out2: isTrue(out2, reverseOut),
+    out3: isTrue(out3, reverseOut),
+    out4: isTrue(out4, reverseOut),
+    out5: isTrue(out5, reverseOut),
+    di0: string(di0),
+    di1: string(di1),
+    di2: string(di2),
+    di3: string(di3),
     ia0: numeric(ia0),
     ia1: numeric(ia1),
     ia2: numeric(ia2),
@@ -121,7 +123,7 @@ export const getDeviceStatus = async (
   };
 };
 
-export const makeQuery = (action: Action) => {
+export const makeQuery = (action: Action, reverseOut: boolean) => {
   const toToggle = action.toChange
     .filter(({ change }) => change === "toggle")
     .map(({ out }) => out);
@@ -137,10 +139,10 @@ export const makeQuery = (action: Action) => {
     query.push(`out=${toToggle.join("")}`);
   }
   if (toOn.length) {
-    query.push(...toOn.map((no) => `out${no}=1`));
+    query.push(...toOn.map((no) => `out${no}=${reverseOut ? 1 : 0}`));
   }
   if (toOff.length) {
-    query.push(...toOff.map((no) => `out${no}=0`));
+    query.push(...toOff.map((no) => `out${no}=${reverseOut ? 0 : 1}`));
   }
 
   return query.join("&");

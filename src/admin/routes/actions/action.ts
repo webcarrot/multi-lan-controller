@@ -40,6 +40,7 @@ export const action: RouteAction = async (
     status: 200 as Success,
     title,
     item,
+    settings: await adminApi("Settings/Read", null),
     list,
     mode,
   };

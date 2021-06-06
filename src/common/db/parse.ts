@@ -164,6 +164,7 @@ export const parseSettings = shape<Settings>({
     {} as { [key in DeviceStatusValues]: Parser<string> }
   ),
   cols: array(oneOf(validSettingsKeys.map((key) => eq(key)))),
+  reverseOut: boolean({ default: true }),
 });
 
 export const useIsValid = <T>(data: T, validator: Parser<T>) =>

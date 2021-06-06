@@ -27,6 +27,7 @@ const EMPTY_DB: Db = {
       {} as { [key in DeviceStatusValues]: string }
     ),
     cols: [],
+    reverseOut: true,
   },
 };
 
@@ -153,10 +154,12 @@ export const makeDbAccess = async (databaseDir: string): Promise<DbAccess> => {
 
   const NO_CONNECTION = new Set<string>();
 
+  let reverseOut = (await read()).settings.reverseOut;
+
   const watchDeviceStatus = async (device: Device) => {
     CURRENT_STATUS_CHECK.set(device.id, null);
     try {
-      const status = await getDeviceStatus(device);
+      const status = await getDeviceStatus(device, reverseOut);
       if (NO_CONNECTION.has(device.id)) {
         NO_CONNECTION.delete(device.id);
         console.info(
@@ -186,7 +189,9 @@ export const makeDbAccess = async (databaseDir: string): Promise<DbAccess> => {
   };
 
   const getStatus = async () => {
-    const devices = (await read()).devices.filter(({ isActive }) => isActive);
+    const db = await read();
+    reverseOut = db.settings.reverseOut;
+    const devices = db.devices.filter(({ isActive }) => isActive);
     devices
       .filter(({ id }) => !CURRENT_STATUS_CHECK.has(id))
       .forEach(watchDeviceStatus);

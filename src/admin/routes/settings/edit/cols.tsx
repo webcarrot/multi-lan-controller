@@ -149,7 +149,9 @@ export const EditCols = React.memo<{
           onClose={handleClose}
         >
           {addOptions.map((key) => (
-            <MenuItem onClick={() => handleAdd(key)}>{data[key]}</MenuItem>
+            <MenuItem onClick={() => handleAdd(key)} key={key}>
+              {data[key]}
+            </MenuItem>
           ))}
         </Menu>
       </Bottombar>

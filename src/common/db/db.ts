@@ -27,6 +27,7 @@ const EMPTY_DB: Db = {
       {} as { [key in DeviceStatusValues]: string }
     ),
     cols: [],
+    notifications: [],
     reverseOut: true,
   },
 };

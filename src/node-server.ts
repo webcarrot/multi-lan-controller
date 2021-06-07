@@ -31,6 +31,12 @@ const argv = yargs
     demandOption: true,
     default: DEFAULT_DB_DIR,
   })
+  .option("dev-mode", {
+    hidden: true,
+    boolean: true,
+    description: "Dev mode",
+    default: false,
+  })
   .help().argv;
 
 const bestOff = <T>(v: T | T[]): T =>
@@ -41,7 +47,7 @@ const bestOff = <T>(v: T | T[]): T =>
   const portOrSocket = bestOff(args["p"]);
   try {
     const dbAccess = await makeDbAccess(bestOff(args["d"]));
-    const app = await makeApp(dbAccess);
+    const app = await makeApp(dbAccess, bestOff(args["dev-mode"]));
     app.listen(portOrSocket, () => {
       console.info(
         `[${new Date().toLocaleTimeString()}] info: app start listen on ${JSON.stringify(

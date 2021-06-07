@@ -12,12 +12,29 @@ import {
 import { DeviceStatusValues } from "@webcarrot/multi-lan-controller/common/device/types";
 import * as React from "react";
 import { ReactAdminApiContext } from "../../../api/context";
-import { Toolbar, useAutoState } from "../../../components";
+import { SuspenseLoader, Toolbar, useAutoState } from "../../../components";
 
-import { EditCols } from "./cols";
 import { DashboardPlace } from "@webcarrot/multi-lan-controller/admin/api/dashboard/types";
-import { EditSort } from "./sort";
-import { EditNames } from "./names";
+const EditCols = React.lazy(() =>
+  import(/* webpackChunkName: "routes/settings/edit/cols" */ "./cols").then(
+    ({ EditCols }) => ({ default: EditCols })
+  )
+);
+const EditSort = React.lazy(() =>
+  import(/* webpackChunkName: "routes/settings/edit/sort" */ "./sort").then(
+    ({ EditSort }) => ({ default: EditSort })
+  )
+);
+const EditNames = React.lazy(() =>
+  import(/* webpackChunkName: "routes/settings/edit/names" */ "./names").then(
+    ({ EditNames }) => ({ default: EditNames })
+  )
+);
+const EditNotifications = React.lazy(() =>
+  import(
+    /* webpackChunkName: "routes/settings/edit/notifications" */ "./notifications"
+  ).then(({ EditNotifications }) => ({ default: EditNotifications }))
+);
 
 export const Edit = React.memo<{
   readonly settings: Settings;
@@ -29,7 +46,8 @@ export const Edit = React.memo<{
   const [data, setData] = useAutoState<Settings>(settings);
   const adminApi = React.useContext(ReactAdminApiContext);
   const isValid = useIsValid(data, parseSettings);
-  const [tab, setTab] = React.useState<"names" | "cols" | "sort">("names");
+  const [tab, setTab] =
+    React.useState<"names" | "cols" | "sort" | "notifications">("names");
 
   const handleSave = React.useCallback(() => {
     if (isValid) {
@@ -97,6 +115,16 @@ export const Edit = React.memo<{
         <EditSort {...sorted} onChange={setSorted} onSave={handleSaveSort} />
       );
       break;
+    case "notifications":
+      content = (
+        <EditNotifications
+          data={data}
+          onChange={setData}
+          onSave={handleSave}
+          isValid={isValid}
+        />
+      );
+      break;
     default:
       content = (
         <EditNames
@@ -120,9 +148,10 @@ export const Edit = React.memo<{
           <Tab value="names" label="Names" />
           <Tab value="sort" label="Sort" />
           <Tab value="cols" label="Cols" />
+          <Tab value="notifications" label="Notifications" />
         </Tabs>
       </Toolbar>
-      {content}
+      <SuspenseLoader>{content}</SuspenseLoader>
     </>
   );
 });

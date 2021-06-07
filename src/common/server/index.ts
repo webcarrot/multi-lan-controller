@@ -9,9 +9,9 @@ import { makeStateHandlers } from "./state";
 import * as session from "koa-session";
 import { DbAccess } from "../db/types";
 
-export const makeApp = async (dbAccess: DbAccess) => {
+export const makeApp = async (dbAccess: DbAccess, devMode: boolean) => {
   const server = new Koa();
-  server.keys = [randomBytes(128).toString("hex")];
+  server.keys = devMode ? ["dev"] : [randomBytes(128).toString("hex")];
   const [storeState, stateHandler] = makeStateHandlers();
   server
     .use(keepAliveHandler)

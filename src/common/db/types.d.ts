@@ -56,7 +56,14 @@ type SettingsNotificationBase<T extends string, E = {}> = {
   readonly speak: boolean;
   readonly playSound: boolean;
   readonly template: string;
+  readonly messageType: SettingsNotificationMessageType;
 } & E;
+
+export type SettingsNotificationMessageType =
+  | "error"
+  | "success"
+  | "warning"
+  | "info";
 
 export type SettingsNotificationOL = SettingsNotificationBase<
   "ol",

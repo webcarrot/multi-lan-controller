@@ -17,6 +17,7 @@ import {
   Button,
   Checkbox,
   Divider,
+  FormControlLabel,
   Grid,
   Paper,
   Table,
@@ -34,7 +35,10 @@ import OnlineIcon from "@material-ui/icons/Power";
 import OfflineIconIcon from "@material-ui/icons/PowerOff";
 import ActiveIcon from "@material-ui/icons/CheckBox";
 import InactiveIcon from "@material-ui/icons/CheckBoxOutlineBlank";
-import { Settings } from "@webcarrot/multi-lan-controller/common/db/types";
+import {
+  Settings,
+  SettingsNotificationMessageType,
+} from "@webcarrot/multi-lan-controller/common/db/types";
 import { DeviceStatusValues } from "@webcarrot/multi-lan-controller/common/device/types";
 import { useSnackbar } from "notistack";
 
@@ -43,6 +47,8 @@ const ONLINE_SIZE = 40;
 const STATUS_SIZE = 150;
 
 const TABLE_STYLE = { margin: "8px 0" };
+
+const AUDIO_MAP = new Map<SettingsNotificationMessageType, HTMLAudioElement>();
 
 const prepareText = (template: string, data: { [key in string]: string }) =>
   Object.keys(data).reduce(
@@ -58,7 +64,27 @@ const Component: ComponentInt = ({
   const adminApi = React.useContext(ReactAdminApiContext);
   const user = React.useContext(UserContext);
   const notificationsState = React.useRef<Set<string>>(null);
-  const audioEl = React.useRef<HTMLAudioElement>(null);
+  const [muteSound, setMuteSound] = React.useState(false);
+
+  const handleChangeMuteSound = React.useCallback(
+    (ev: React.ChangeEvent<HTMLInputElement>) => {
+      const muteSound = ev.target.checked;
+      setMuteSound(muteSound);
+      try {
+        localStorage.setItem("muteSound", muteSound ? "m" : "p");
+      } catch (_) {}
+    },
+    []
+  );
+
+  React.useEffect(() => {
+    try {
+      const muteSound = localStorage.getItem("muteSound") === "m";
+      if (muteSound) {
+        setMuteSound(muteSound);
+      }
+    } catch (_) {}
+  }, []);
 
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const filteredActions = React.useMemo(
@@ -107,9 +133,15 @@ const Component: ComponentInt = ({
     .join("&");
 
   React.useEffect(() => {
-    let playSound = false;
-    const toAlert: string[] = [];
-    const toSpeak: string[] = [];
+    const playSound = new Set<SettingsNotificationMessageType>();
+    const toAlert: Array<{
+      text: string;
+      messageType: SettingsNotificationMessageType;
+    }> = [];
+    const toSpeak: Array<{
+      text: string;
+      messageType: SettingsNotificationMessageType;
+    }> = [];
     settings.notifications.forEach((notification) => {
       switch (notification.type) {
         case "ol":
@@ -121,18 +153,21 @@ const Component: ComponentInt = ({
                 !notificationsState.current.has(checkKey) &&
                 newNotificationsState.has(checkKey)
               ) {
-                const text = prepareText(notification.template, {
-                  place,
-                  device,
-                });
+                const message = {
+                  text: prepareText(notification.template, {
+                    place,
+                    device,
+                  }),
+                  messageType: notification.messageType,
+                };
                 if (notification.alert) {
-                  toAlert.push(text);
+                  toAlert.push(message);
                 }
                 if (notification.speak) {
-                  toSpeak.push(text);
+                  toSpeak.push(message);
                 }
                 if (notification.playSound) {
-                  playSound = true;
+                  playSound.add(notification.messageType);
                 }
               }
             })
@@ -150,18 +185,21 @@ const Component: ComponentInt = ({
                   !notificationsState.current.has(checkKey) &&
                   newNotificationsState.has(checkKey)
                 ) {
-                  const text = prepareText(notification.template, {
-                    place,
-                    device,
-                  });
+                  const message = {
+                    text: prepareText(notification.template, {
+                      place,
+                      device,
+                    }),
+                    messageType: notification.messageType,
+                  };
                   if (notification.alert) {
-                    toAlert.push(text);
+                    toAlert.push(message);
                   }
                   if (notification.speak) {
-                    toSpeak.push(text);
+                    toSpeak.push(message);
                   }
                   if (notification.playSound) {
-                    playSound = true;
+                    playSound.add(notification.messageType);
                   }
                 }
               })
@@ -170,27 +208,46 @@ const Component: ComponentInt = ({
         }
       }
     });
-    if (typeof speechSynthesis === "undefined") {
+    if (muteSound || typeof speechSynthesis === "undefined") {
       toAlert.push(...toSpeak.filter((v) => !toAlert.includes(v)));
     } else {
-      toSpeak.forEach((v) =>
-        speechSynthesis.speak(new SpeechSynthesisUtterance(v))
-      );
+      toSpeak.forEach(({ messageType, text }) => {
+        const ssu = new SpeechSynthesisUtterance(text);
+        switch (messageType) {
+          case "error":
+            ssu.pitch = 1.5;
+            break;
+          case "warning":
+            ssu.pitch = 1.2;
+            break;
+        }
+        speechSynthesis.speak(ssu);
+      });
     }
-    toAlert.forEach((v) => {
-      const key = enqueueSnackbar(v, {
-        variant: "info",
+    toAlert.forEach(({ messageType, text }) => {
+      const key = enqueueSnackbar(text, {
+        variant: messageType,
         onClick: () => closeSnackbar(key),
       });
     });
 
-    if (playSound) {
-      if (!audioEl.current && typeof Audio !== "undefined") {
-        audioEl.current = new Audio("info.wav");
+    if (playSound.size && !muteSound && typeof Audio !== "undefined") {
+      let toPlay: SettingsNotificationMessageType = "info";
+      switch (true) {
+        case playSound.has("error"):
+          toPlay = "error";
+          break;
+        case playSound.has("warning"):
+          toPlay = "warning";
+          break;
+        case playSound.has("success"):
+          toPlay = "success";
+          break;
       }
-      if (audioEl.current) {
-        audioEl.current.play();
+      if (!AUDIO_MAP.has(toPlay)) {
+        AUDIO_MAP.set(toPlay, new Audio(`/sounds/${toPlay}.oga`));
       }
+      AUDIO_MAP.get(toPlay).play();
     }
     notificationsState.current = newNotificationsState;
   }, [notificationsStateDiff]);
@@ -210,18 +267,22 @@ const Component: ComponentInt = ({
 
   const devicesIds = React.useMemo(
     () =>
-      data.reduce(
+      data.reduce<string[]>(
         (out, { devices }) => out.concat(devices.map(({ id }) => id)),
         []
       ),
-    data.reduce(
-      (out, { devices }) => out.concat(devices.map(({ id }) => id)),
-      []
-    )
+    [
+      data
+        .reduce(
+          (out, { devices }) => out.concat(devices.map(({ id }) => id)),
+          []
+        )
+        .join(","),
+    ]
   );
 
   const allSelected = React.useMemo(() => {
-    return devicesIds.reduce(
+    return devicesIds.reduce<boolean>(
       (allSelected, id) => allSelected && selected.includes(id),
       true
     );
@@ -245,7 +306,24 @@ const Component: ComponentInt = ({
         adminApi("Dashboard/Action", {
           actionId,
           devicesIds: selected,
-        });
+        }).then(
+          (status) => {
+            status.forEach(({ name, success }) => {
+              const key = enqueueSnackbar(name, {
+                variant: success ? "success" : "warning",
+                onClick: () => closeSnackbar(key),
+              });
+            });
+          },
+          ({ errors }) => {
+            errors.forEach(({ message }: { message: string }) => {
+              const key = enqueueSnackbar(message, {
+                variant: "error",
+                onClick: () => closeSnackbar(key),
+              });
+            });
+          }
+        );
       }
     },
     [selected]
@@ -306,6 +384,18 @@ const Component: ComponentInt = ({
             >
               Logout
             </Button>
+          </Grid>
+          <Grid item>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={muteSound}
+                  onChange={handleChangeMuteSound}
+                  name="mute"
+                />
+              }
+              label="Mute sounds"
+            />
           </Grid>
         </Bottombar>
       </Item>
@@ -428,7 +518,7 @@ const Device = React.memo<
 >(({ id, isOnline, name, onSelect, selected, status, settings }) => {
   const handleToggle = React.useCallback(() => onSelect(id), [id, onSelect]);
   return (
-    <TableRow>
+    <TableRow style={isOnline ? {} : { background: "rgba(255,64,0,0.5)" }}>
       <TableCell align="center" width={CHECKBOX_SIZE}>
         <Checkbox checked={selected} onChange={handleToggle} size="small" />
       </TableCell>

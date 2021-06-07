@@ -28,6 +28,7 @@ import EditIcon from "@material-ui/icons/Edit";
 import {
   Settings,
   SettingsNotification,
+  SettingsNotificationMessageType,
 } from "@webcarrot/multi-lan-controller/common/db/types";
 import * as React from "react";
 import { Bottombar, ItemContent } from "../../../components";
@@ -43,6 +44,7 @@ const OPTIONS: ReadonlyArray<SettingsNotification> = [
     alert: true,
     playSound: false,
     speak: true,
+    messageType: "warning",
     status: false,
     template: "System lost connection to %device% in %place%.",
   },
@@ -51,6 +53,7 @@ const OPTIONS: ReadonlyArray<SettingsNotification> = [
     alert: true,
     playSound: false,
     speak: false,
+    messageType: "info",
     status: false,
     no: 0,
     template: "Device %device% in %place% change status of OUT.",
@@ -195,6 +198,28 @@ export const EditNotifications = React.memo<{
 
 const OUT_NO = [0, 1, 2, 3, 4, 5];
 
+const MESSAGE_TYPES: ReadonlyArray<{
+  readonly value: SettingsNotificationMessageType;
+  readonly label: string;
+}> = [
+  {
+    value: "info",
+    label: "Info",
+  },
+  {
+    value: "success",
+    label: "Success",
+  },
+  {
+    value: "warning",
+    label: "Warning",
+  },
+  {
+    value: "error",
+    label: "Error",
+  },
+];
+
 const EditNotification = React.memo<{
   value: SettingsNotification;
   onSave: (data: SettingsNotification) => void;
@@ -307,6 +332,24 @@ const EditNotification = React.memo<{
               }
               label="Speak"
             />
+          </Grid>
+          <Grid item xs={12}>
+            <FormControl fullWidth>
+              <InputLabel id="out-messag-type-label">Message type</InputLabel>
+              <Select
+                labelId="out-messag-type-label"
+                id="out-messag-type"
+                value={data.messageType}
+                onChange={handleChange}
+                name="messageType"
+              >
+                {MESSAGE_TYPES.map(({ value, label }) => (
+                  <MenuItem value={value} key={value}>
+                    {label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </Grid>
           <Grid item xs={12}>
             <TextField

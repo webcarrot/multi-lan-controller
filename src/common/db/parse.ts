@@ -164,6 +164,9 @@ export const parseSettingsNotificationOL = shape<SettingsNotificationOL>({
   alert: boolean({ default: false }),
   playSound: boolean({ default: false }),
   speak: boolean({ default: false }),
+  messageType: oneOf([eq("error"), eq("success"), eq("warning"), eq("info")], {
+    default: "info",
+  }),
   status: boolean({ default: false }),
   template: string(),
 });
@@ -176,6 +179,9 @@ export const parseSettingsNotificationOut = shape<SettingsNotificationOut>({
   alert: boolean({ default: false }),
   playSound: boolean({ default: false }),
   speak: boolean({ default: false }),
+  messageType: oneOf([eq("error"), eq("success"), eq("warning"), eq("info")], {
+    default: "info",
+  }),
   status: boolean({ default: false }),
   template: string(),
 });

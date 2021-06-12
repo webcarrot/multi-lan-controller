@@ -74,21 +74,21 @@ export const makeLogger = async (dbDir: string): Promise<Logger> => {
       .filter(({ date }) => !!date)
       .sort((a, b) => b.date.getTime() - a.date.getTime());
 
-    let fromTime: Date;
-    if (query.fromTime) {
-      fromTime = toStartOfDay(new Date(query.fromTime.substring(0, 10)));
+    let fromDate: Date;
+    if (query.fromDate) {
+      fromDate = toStartOfDay(new Date(query.fromDate.substring(0, 10)));
     } else {
-      fromTime = toStartOfDay(new Date());
+      fromDate = toStartOfDay(new Date());
     }
-    if (fromTime) {
-      files = files.filter(({ date }) => fromTime.getTime() <= date.getTime());
+    if (fromDate) {
+      files = files.filter(({ date }) => fromDate.getTime() <= date.getTime());
     }
-    if (query.toTime) {
-      const toTime = toEndOfDay(new Date(query.toTime.substring(0, 10)));
-      if (toTime) {
-        if (toTime.getTime()) {
+    if (query.toDate) {
+      const toDate = toEndOfDay(new Date(query.toDate.substring(0, 10)));
+      if (toDate) {
+        if (toDate.getTime()) {
           files = files.filter(
-            ({ date }) => toTime.getTime() >= date.getTime()
+            ({ date }) => toDate.getTime() >= date.getTime()
           );
         }
       }
@@ -98,7 +98,7 @@ export const makeLogger = async (dbDir: string): Promise<Logger> => {
       await Promise.all(
         files.map<Promise<string[]>>(async ({ name }) =>
           (
-            await promises.readFile(join(logDir, name), "utf-8")
+            await promises.readFile(join(logTypeDir, name), "utf-8")
           )
             .split("\n")
             .filter((v) => !!v.length)

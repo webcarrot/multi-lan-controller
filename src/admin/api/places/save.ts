@@ -13,9 +13,8 @@ export const save: AdminApiFunction<Place, Place> = async (
   logger.append<LoggerAdminRecord>({
     type: "admin",
     userId: user.id,
-    message: `${placeToSave.id ? "Change" : "Add"} place ${newPlace.id}/${
-      newPlace.name
-    }`,
+    component: "place",
+    id: newPlace.id,
   });
   return newPlace;
 };

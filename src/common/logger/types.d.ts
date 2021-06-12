@@ -4,7 +4,6 @@ export type LoggerRecordType = "status" | "action" | "auth" | "admin";
 
 type LoggerBaseRecord<T extends LoggerRecordType, E = {}> = {
   readonly type: T;
-  readonly message: string;
   readonly date: number;
 } & E;
 
@@ -31,13 +30,24 @@ export type LoggerAuthRecord = LoggerBaseRecord<
   "auth",
   {
     readonly userId: string;
+    readonly logIn: boolean;
   }
 >;
+
+export type LoggerAdminRecordComponentType =
+  | "user"
+  | "settings"
+  | "sort"
+  | "device"
+  | "place"
+  | "action";
 
 export type LoggerAdminRecord = LoggerBaseRecord<
   "admin",
   {
     readonly userId: string;
+    readonly component: LoggerAdminRecordComponentType;
+    readonly id: string;
   }
 >;
 export type LoggerRecord =
@@ -47,8 +57,8 @@ export type LoggerRecord =
   | LoggerAdminRecord;
 
 export type LoggerInfoQuery<T extends LoggerRecordType> = {
-  readonly fromTime?: string;
-  readonly toTime?: string;
+  readonly fromDate?: string;
+  readonly toDate?: string;
   readonly offset?: number;
   readonly limit?: number;
   readonly type: T;

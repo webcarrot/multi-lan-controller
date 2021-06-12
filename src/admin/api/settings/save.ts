@@ -13,7 +13,8 @@ export const save: AdminApiFunction<Settings, Settings> = async (
   logger.append<LoggerAdminRecord>({
     type: "admin",
     userId: user.id,
-    message: `Change settings`,
+    component: "settings",
+    id: null,
   });
   return newSettings;
 };

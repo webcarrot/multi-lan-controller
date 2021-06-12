@@ -178,9 +178,6 @@ export const makeDbAccess = async (
           type: "status",
           deviceId: device.id,
           isOnline: true,
-          message: NO_CONNECTION.has(device.id)
-            ? "Back to normal"
-            : "Change out status",
           status,
         });
       }
@@ -199,7 +196,6 @@ export const makeDbAccess = async (
           type: "status",
           deviceId: device.id,
           isOnline: false,
-          message: "Loose connection",
           status: null,
         });
         NO_CONNECTION.add(device.id);

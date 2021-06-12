@@ -32,7 +32,8 @@ export const sort: AdminApiFunction<
   logger.append<LoggerAdminRecord>({
     type: "admin",
     userId: user.id,
-    message: `Change sort`,
+    component: "sort",
+    id: null,
   });
   return null;
 };

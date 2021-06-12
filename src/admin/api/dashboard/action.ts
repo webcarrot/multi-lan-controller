@@ -74,7 +74,6 @@ export const action: AdminApiFunction<
                   deviceId: device.id,
                   userId: user.id,
                   success: true,
-                  message: `${action.name} executed on ${device.name} in ${place.name} by ${user.name}`,
                 });
               } catch (err) {
                 out.push({
@@ -88,7 +87,6 @@ export const action: AdminApiFunction<
                   deviceId: device.id,
                   userId: user.id,
                   success: false,
-                  message: `${action.name} failures on ${device.name} in ${place.name} by ${user.name}; ${err?.message}`,
                 });
               }
             })

@@ -48,7 +48,7 @@ export const authHandler = async (
         logger.append<LoggerAuthRecord>({
           type: "auth",
           userId: user.id,
-          message: `User ${login} logged in`,
+          logIn: true,
         });
         return;
       } else {

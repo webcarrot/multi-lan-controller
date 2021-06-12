@@ -1,6 +1,6 @@
-type CSVCol = number | string | string[];
+export type CSVCol = number | string | string[];
 
-type CSVLine = Array<CSVCol>;
+export type CSVLine = Array<CSVCol>;
 
 const makeCsvCol = (col: CSVCol): string => {
   switch (typeof col) {
@@ -18,4 +18,6 @@ const makeCsvCol = (col: CSVCol): string => {
       return JSON.stringify("");
   }
 };
-const makeCsvLine = (line: CSVLine): string => line.map(makeCsvCol).join(";");
+
+export const makeCsvLine = (line: CSVLine): string =>
+  line.map(makeCsvCol).join(";");

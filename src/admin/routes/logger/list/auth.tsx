@@ -18,6 +18,7 @@ import {
   Loader,
 } from "@webcarrot/multi-lan-controller/admin/components";
 import * as React from "react";
+import { CSVLine, makeCsvLine } from "./csv";
 import { Footer } from "./footer";
 
 const formatToCsv = (items: ReadonlyArray<InternalAuthLoggerRecord>) =>
@@ -81,8 +82,8 @@ export const Auth = React.memo(() => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {data.items.map(({ date, user, logIn }) => (
-                <TableRow>
+              {data.items.map(({ date, user, logIn }, key) => (
+                <TableRow key={`${key}-${date}`}>
                   <TableCell align="left">
                     {new Date(date).toLocaleString()}
                   </TableCell>

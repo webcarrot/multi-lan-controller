@@ -18,6 +18,7 @@ import {
   Loader,
 } from "@webcarrot/multi-lan-controller/admin/components";
 import * as React from "react";
+import { CSVLine, makeCsvLine } from "./csv";
 import { Footer } from "./footer";
 
 const formatToCsv = (items: ReadonlyArray<InternalActionLoggerRecord>) =>
@@ -87,9 +88,10 @@ export const Actions = React.memo(() => {
             </TableHead>
             <TableBody>
               {data.items.map(
-                ({ date, device, user, action, place, success }) => (
+                ({ date, device, user, action, place, success }, key) => (
                   <TableRow
                     style={success ? {} : { background: "rgba(255,64,0,0.5)" }}
+                    key={`${key}-${date}`}
                   >
                     <TableCell align="left">
                       {new Date(date).toLocaleString()}

@@ -1,3 +1,4 @@
+import { LoggerAdminRecord } from "@webcarrot/multi-lan-controller/common/logger/types";
 import { checkIsAdmin } from "../access";
 import { AdminApiFunction } from "../types";
 
@@ -20,7 +21,7 @@ export const sort: AdminApiFunction<
     readonly devices: ReadonlyArray<string>;
   },
   null
-> = async ({ actions, places, devices }, { dbAccess, user }) => {
+> = async ({ actions, places, devices }, { dbAccess, user, logger }) => {
   checkIsAdmin(user);
   await dbAccess.save(async (data) => ({
     ...data,
@@ -28,5 +29,10 @@ export const sort: AdminApiFunction<
     places: doSort(data.places, places),
     devices: doSort(data.devices, devices),
   }));
+  logger.append<LoggerAdminRecord>({
+    type: "admin",
+    userId: user.id,
+    message: `Change sort`,
+  });
   return null;
 };

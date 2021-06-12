@@ -5,15 +5,17 @@ import {
   DbAccess,
   User,
 } from "@webcarrot/multi-lan-controller/common/db/types";
+import { Logger } from "@webcarrot/multi-lan-controller/common/logger/types";
 
 export const adminApiHandler = async (
   ctx: Context,
   dbAccess: DbAccess,
+  logger: Logger,
   user: User
 ) => {
   ctx.compress = true;
   const { action, payload, batch } = await getJsonBody(ctx);
-  const callApi = await makeApi(dbAccess, user);
+  const callApi = await makeApi(dbAccess, logger, user);
   let data: any;
   if (batch instanceof Array) {
     data = await Promise.all(

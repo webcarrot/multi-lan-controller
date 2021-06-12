@@ -1,6 +1,6 @@
 import * as dashboard from "./dashboard";
 import * as devices from "./devices";
-import * as _actions from "./_actions";
+import * as _actions from "./actions";
 
 import * as places from "./places";
 import * as users from "./users";

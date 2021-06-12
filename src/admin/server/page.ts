@@ -29,6 +29,7 @@ import {
   DbAccess,
   User,
 } from "@webcarrot/multi-lan-controller/common/db/types";
+import { Logger } from "@webcarrot/multi-lan-controller/common/logger/types";
 
 const makeInit = async (rootPath: string): Promise<string> => {
   const { manifests } = await getManifests();
@@ -65,6 +66,7 @@ export const adminPageHandler = async (
   csrfSecret: string,
   storeState: (state: string, init: string) => string,
   dbAccess: DbAccess,
+  logger: Logger,
   user: User
 ) => {
   const method = ctx.method;
@@ -74,7 +76,7 @@ export const adminPageHandler = async (
   ctx.compress = true;
   const body: any = await getBody(ctx);
 
-  const adminApi = await makeAdminApi(dbAccess, user);
+  const adminApi = await makeAdminApi(dbAccess, logger, user);
 
   const appContext = makeRouteContext(routes, {
     adminApi,

@@ -11,6 +11,7 @@ addAlias("@webcarrot/multi-lan-controller", __dirname);
 import { makeApp } from "./common/server";
 import { homedir } from "os";
 import { makeDbAccess } from "./common/db";
+import { makeLogger } from "./common/logger/logger";
 
 const DEFAULT_PORT = 8080;
 const DEFAULT_DB_DIR =
@@ -46,8 +47,9 @@ const bestOff = <T>(v: T | T[]): T =>
   const args = await argv;
   const portOrSocket = bestOff(args["p"]);
   try {
-    const dbAccess = await makeDbAccess(bestOff(args["d"]));
-    const app = await makeApp(dbAccess, bestOff(args["dev-mode"]));
+    const logger = await makeLogger(bestOff(args["d"]));
+    const dbAccess = await makeDbAccess(bestOff(args["d"]), logger);
+    const app = await makeApp(dbAccess, logger, bestOff(args["dev-mode"]));
     app.listen(portOrSocket, () => {
       console.info(
         `[${new Date().toLocaleTimeString()}] info: app start listen on ${JSON.stringify(

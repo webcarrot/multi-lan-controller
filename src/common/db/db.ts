@@ -3,6 +3,7 @@ import { Settings } from "http2";
 import { join } from "path";
 import { getDeviceStatus } from "../device";
 import { DeviceStatus, DeviceStatusValues } from "../device/types";
+import { Logger, LoggerStatusRecord } from "../logger/types";
 import {
   parseAction,
   parseDevice,
@@ -65,7 +66,10 @@ const checkDb = ({ actions, devices, places, settings, users }: Db): Db => {
   };
 };
 
-export const makeDbAccess = async (databaseDir: string): Promise<DbAccess> => {
+export const makeDbAccess = async (
+  databaseDir: string,
+  logger: Logger
+): Promise<DbAccess> => {
   let dbPromise: Promise<Db>;
   try {
     let info;
@@ -161,6 +165,22 @@ export const makeDbAccess = async (databaseDir: string): Promise<DbAccess> => {
     CURRENT_STATUS_CHECK.set(device.id, null);
     try {
       const status = await getDeviceStatus(device, reverseOut);
+      if (
+        !CURRENT_STATUS[device.id] ||
+        CURRENT_STATUS[device.id].out0 !== status.out0 ||
+        CURRENT_STATUS[device.id].out1 !== status.out1 ||
+        CURRENT_STATUS[device.id].out2 !== status.out2 ||
+        CURRENT_STATUS[device.id].out3 !== status.out3 ||
+        CURRENT_STATUS[device.id].out4 !== status.out4 ||
+        CURRENT_STATUS[device.id].out5 !== status.out5
+      ) {
+        logger.append<LoggerStatusRecord>({
+          type: "status",
+          deviceId: device.id,
+          isOnline: true,
+          status,
+        });
+      }
       if (NO_CONNECTION.has(device.id)) {
         NO_CONNECTION.delete(device.id);
         console.info(
@@ -172,6 +192,12 @@ export const makeDbAccess = async (databaseDir: string): Promise<DbAccess> => {
       CURRENT_STATUS[device.id] = status;
     } catch (err) {
       if (!NO_CONNECTION.has(device.id)) {
+        logger.append<LoggerStatusRecord>({
+          type: "status",
+          deviceId: device.id,
+          isOnline: false,
+          status: null,
+        });
         NO_CONNECTION.add(device.id);
         console.error(
           `[${new Date().toISOString()}] ERROR: ${err.message} ${

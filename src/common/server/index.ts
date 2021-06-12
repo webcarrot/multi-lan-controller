@@ -8,8 +8,13 @@ import { keepAliveHandler } from "./keepAlive";
 import { makeStateHandlers } from "./state";
 import * as session from "koa-session";
 import { DbAccess } from "../db/types";
+import { Logger } from "../logger/types";
 
-export const makeApp = async (dbAccess: DbAccess, devMode: boolean) => {
+export const makeApp = async (
+  dbAccess: DbAccess,
+  logger: Logger,
+  devMode: boolean
+) => {
   const server = new Koa();
   server.keys = devMode ? ["dev"] : [randomBytes(128).toString("hex")];
   const [storeState, stateHandler] = makeStateHandlers();
@@ -24,6 +29,6 @@ export const makeApp = async (dbAccess: DbAccess, devMode: boolean) => {
       })
     )
     .use(session(server))
-    .use(makeAdminHandlers(storeState, dbAccess));
+    .use(makeAdminHandlers(storeState, dbAccess, logger));
   return server;
 };

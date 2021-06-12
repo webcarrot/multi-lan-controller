@@ -8,6 +8,7 @@ import {
   makeQuery,
   performAction,
 } from "@webcarrot/multi-lan-controller/common/device";
+import { LoggerActionRecord } from "@webcarrot/multi-lan-controller/common/logger/types";
 import { AdminApiFunction } from "../types";
 
 export const action: AdminApiFunction<
@@ -20,7 +21,7 @@ export const action: AdminApiFunction<
     readonly name: string;
     readonly success: boolean;
   }>
-> = async ({ actionId, devicesIds }, { dbAccess, user }) => {
+> = async ({ actionId, devicesIds }, { dbAccess, user, logger }) => {
   let places = await listPlaces(dbAccess);
   let devices = await listDevices(dbAccess);
   const { reverseOut } = await readSettings(dbAccess);
@@ -67,10 +68,24 @@ export const action: AdminApiFunction<
                   name: device.name,
                   success: true,
                 });
-              } catch (_) {
+                logger.append<LoggerActionRecord>({
+                  type: "action",
+                  actionId: action.id,
+                  deviceId: device.id,
+                  userId: user.id,
+                  success: true,
+                });
+              } catch (err) {
                 out.push({
                   id: device.id,
                   name: device.name,
+                  success: false,
+                });
+                logger.append<LoggerActionRecord>({
+                  type: "action",
+                  actionId: action.id,
+                  deviceId: device.id,
+                  userId: user.id,
                   success: false,
                 });
               }

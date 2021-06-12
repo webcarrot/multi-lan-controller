@@ -20,7 +20,7 @@ import ActionsIcon from "@material-ui/icons/FlashOn";
 import UsersIcon from "@material-ui/icons/SupervisorAccount";
 import SettingsIcon from "@material-ui/icons/Settings";
 import LogoutIcon from "@material-ui/icons/ExitToApp";
-
+import LoggerIcon from "@material-ui/icons/ViewList";
 const useStyles = makeStyles({
   root: {
     height: "100%",
@@ -94,6 +94,11 @@ const MENU_ITEMS: Array<{
     route: "settings",
     label: "Settings",
     Icon: SettingsIcon,
+  },
+  {
+    route: "logger",
+    label: "Logs",
+    Icon: LoggerIcon,
   },
 ];
 

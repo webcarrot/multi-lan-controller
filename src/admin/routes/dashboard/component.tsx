@@ -111,7 +111,9 @@ const Component: ComponentInt = ({
           devices
             .filter(({ isOnline }) => isOnline)
             .forEach(({ id, status }) =>
-              newNotificationsState.add(`${id}/out/${status[outId]}`)
+              newNotificationsState.add(
+                `${id}/out/${notification.no}/${status[outId]}`
+              )
             )
         );
         break;
@@ -179,7 +181,7 @@ const Component: ComponentInt = ({
             devices
               .filter(({ isOnline }) => isOnline)
               .forEach(({ id, status, name: device }) => {
-                const checkKey = `${id}/ol/${status[outId]}`;
+                const checkKey = `${id}/out/${notification.no}/${status[outId]}`;
                 if (
                   status[outId] === notification.status &&
                   !notificationsState.current.has(checkKey) &&

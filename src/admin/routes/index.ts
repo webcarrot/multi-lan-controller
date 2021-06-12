@@ -7,6 +7,7 @@ import { route as places } from "./places";
 import { route as devices } from "./devices";
 import { route as settings } from "./settings";
 import { route as actions } from "./actions";
+import { route as logger } from "./logger";
 
 export const routes: Routes = {
   dashboard,
@@ -15,5 +16,6 @@ export const routes: Routes = {
   devices,
   settings,
   actions,
+  logger,
   notFound,
 };

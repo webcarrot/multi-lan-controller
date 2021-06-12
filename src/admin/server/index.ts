@@ -10,20 +10,22 @@ import {
 import { adminApiHandler } from "./api";
 import { DbAccess } from "@webcarrot/multi-lan-controller/common/db/types";
 import { getUser, authHandler, signOutHandler } from "./auth";
+import { Logger } from "@webcarrot/multi-lan-controller/common/logger/types";
 
 const adminHandler = async (
   ctx: Context,
   next: () => Promise<any>,
   csrfProvider: (ctx: Context) => Promise<string>,
   storeState: (state: string, init: string) => string,
-  dbAccess: DbAccess
+  dbAccess: DbAccess,
+  logger: Logger
 ) => {
   let user = await getUser(ctx, dbAccess);
   if (!user) {
     ctx.set({
       "Cache-Control": "private, no-cache, no-store, must-revalidate",
     });
-    return await authHandler(ctx, dbAccess);
+    return await authHandler(ctx, dbAccess, logger);
   }
   if (ctx.path === `/${SIGNOUT_ENDPOINT}`) {
     return await signOutHandler(ctx);
@@ -33,7 +35,7 @@ const adminHandler = async (
     "Cache-Control": "private, no-cache, no-store, must-revalidate",
   });
   if (ctx.method === "POST" && ctx.path === `/${API_ENDPOINT}`) {
-    return await adminApiHandler(ctx, dbAccess, user);
+    return await adminApiHandler(ctx, dbAccess, logger, user);
   } else {
     return await adminPageHandler(
       ctx,
@@ -41,6 +43,7 @@ const adminHandler = async (
       csrfSecret,
       storeState,
       dbAccess,
+      logger,
       user
     );
   }
@@ -48,12 +51,20 @@ const adminHandler = async (
 
 export const makeAdminHandlers = (
   storeState: (state: string, init: string) => string,
-  dbAccess: DbAccess
+  dbAccess: DbAccess,
+  logger: Logger
 ) => {
   const csrfProvider = makeCsrfProvider();
   return async (ctx: Context, next: () => Promise<any>) => {
     try {
-      return await adminHandler(ctx, next, csrfProvider, storeState, dbAccess);
+      return await adminHandler(
+        ctx,
+        next,
+        csrfProvider,
+        storeState,
+        dbAccess,
+        logger
+      );
     } catch (error) {
       return await errorHandler(ctx, error);
     }

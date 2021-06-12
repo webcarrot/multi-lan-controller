@@ -1,10 +1,11 @@
 import * as dashboard from "./dashboard";
 import * as devices from "./devices";
-import * as _actions from "./_actions";
+import * as _actions from "./actions";
 
 import * as places from "./places";
 import * as users from "./users";
 import * as settings from "./settings";
+import * as logger from "./logger";
 
 import { apiErrorHandlerWrapper as ew } from "@webcarrot/multi-lan-controller/common/utils/apiErrorHandlerWrapper";
 
@@ -29,4 +30,6 @@ export const actions = {
   "Settings/Read": ew(settings.read),
   "Settings/Save": ew(settings.save),
   "Settings/Sort": ew(settings.sort),
+  // Logger
+  "Logger/List": ew(logger.list),
 };

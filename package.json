@@ -1,6 +1,6 @@
 {
   "name": "@webcarrot/multi-lan-controller",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Simple manager for multiple tinycontrol.pl lan controllers.",
   "main": "index.js",
   "scripts": {
@@ -14,7 +14,7 @@
     "publish:beta": "node ./scripts/publish.js --beta",
     "publish:production": "node ./scripts/publish.js --production",
     "clear:dev": "node ./scripts/npm.js",
-    "start:dev": "node ./scripts/npm.js",
+    "start:dev": "node ./scripts/npm.js --dev-mode",
     "format": "prettier --loglevel warn --print-width 80 --write './src/**/*.ts' './src/**/*.tsx' './*.md' './*.json'",
     "test": "tsc --noEmit",
     "prepublishOnly": "nopublish"

@@ -2,20 +2,8 @@ import * as React from "react";
 import { Button, Grid, TablePagination, TextField } from "@material-ui/core";
 import { InternalLoggerMeta } from "@webcarrot/multi-lan-controller/admin/api/logger/types";
 import { Bottombar } from "@webcarrot/multi-lan-controller/admin/components";
-
-const downloadFile = (content: string, name: string, type: string) => {
-  const a = document.createElement("a");
-  const file = new Blob([content], { type });
-  const url = URL.createObjectURL(file);
-  a.href = url;
-  a.download = name;
-  document.body.appendChild(a);
-  a.click();
-  setTimeout(function () {
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
-  }, 0);
-};
+import { downloadFile } from "@webcarrot/multi-lan-controller/common/utils/downloadFile";
+import ExportIcon from "@material-ui/icons/CloudDownload";
 
 const InputProps = { type: "date" };
 const InputLabelProps = {
@@ -87,7 +75,12 @@ export const Footer = React.memo<{
         />
       </Grid>
       <Grid item>
-        <Button variant="contained" color="primary" onClick={handleExport}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleExport}
+          startIcon={<ExportIcon />}
+        >
           Export to CSV
         </Button>
       </Grid>

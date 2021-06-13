@@ -29,16 +29,22 @@ const useStyles = makeStyles<Theme>((theme) => ({
     color: theme.palette.common.white,
     background: theme.palette.background.default,
   },
+  progress: {
+    cursor: "progress",
+    "& *": {
+      cursor: "progress!important",
+    },
+  },
+  wait: {
+    cursor: "wait",
+    "& *": {
+      pointerEvents: "none",
+    },
+  },
   content: {
     flexGrow: 1,
     height: "100%",
     overflow: "hidden",
-  },
-  inProgress: {
-    cursor: "wait",
-    "&> *": {
-      pointerEvents: "none",
-    },
   },
 }));
 
@@ -51,18 +57,19 @@ export const Layout = React.memo(() => {
   const { inProgress: routeInProgress } = React.useContext(ReactRouteContext);
 
   const setInProgress = React.useCallback(() => {
-    setWaitForIt((v) => v++);
-    return () => setWaitForIt((v) => v--);
-  }, []);
+    setWaitForIt((v) => v + 1);
+    return () => setWaitForIt((v) => v - 1);
+  }, [setWaitForIt]);
 
-  const inProgress = waitFor > 0 || routeInProgress();
+  const wait = waitFor > 0;
+  const progress = !wait && routeInProgress();
 
   return (
     <InProgressContext.Provider value={setInProgress}>
       <div
-        className={
-          inProgress ? `${classes.root} ${classes.inProgress}` : classes.root
-        }
+        className={`${classes.root} ${
+          progress ? classes.progress : wait ? classes.wait : ""
+        }`}
       >
         {user.type === "admin" ? <Navigation /> : null}
         <div className={classes.content}>

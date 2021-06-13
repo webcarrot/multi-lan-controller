@@ -50,7 +50,7 @@ export type LoggerAdminRecord = LoggerBaseRecord<
     readonly userId: string;
     readonly component: LoggerAdminRecordComponentType;
     readonly changeType: LoggerAdminRecordChangeType;
-    readonly name?: string;
+    readonly name: string;
     readonly id: string;
   }
 >;
@@ -66,6 +66,7 @@ export type LoggerInfoQuery<T extends LoggerRecordType> = {
   readonly toDate?: string;
   readonly offset?: number;
   readonly limit?: number;
+  readonly ids?: ReadonlyArray<string>;
   readonly type: T;
 };
 

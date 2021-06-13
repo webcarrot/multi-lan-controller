@@ -24,6 +24,8 @@ import SaveIcon from "@material-ui/icons/Save";
 import AddIcon from "@material-ui/icons/Add";
 import RemoveIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
+import ConfirmIcon from "@material-ui/icons/Done";
+import CancelIcon from "@material-ui/icons/Cancel";
 
 import {
   Settings,
@@ -335,10 +337,10 @@ const EditNotification = React.memo<{
           </Grid>
           <Grid item xs={12}>
             <FormControl fullWidth>
-              <InputLabel id="out-messag-type-label">Message type</InputLabel>
+              <InputLabel id="out-message-type-label">Message type</InputLabel>
               <Select
-                labelId="out-messag-type-label"
-                id="out-messag-type"
+                labelId="out-message-type-label"
+                id="out-message-type"
                 value={data.messageType}
                 onChange={handleChange}
                 name="messageType"
@@ -365,11 +367,21 @@ const EditNotification = React.memo<{
         </Grid>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onAbort} color="secondary" variant="contained">
+        <Button
+          onClick={onAbort}
+          color="secondary"
+          variant="contained"
+          startIcon={<CancelIcon />}
+        >
           Cancel
         </Button>
-        <Button onClick={handleSave} color="primary" variant="contained">
-          save
+        <Button
+          onClick={handleSave}
+          color="primary"
+          variant="contained"
+          startIcon={<ConfirmIcon />}
+        >
+          Confirm changes
         </Button>
       </DialogActions>
     </Dialog>

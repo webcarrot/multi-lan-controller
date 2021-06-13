@@ -29,7 +29,7 @@ export const App = ({ adminApiContext, route, user, rootPath }: AppProps) => {
         <ThemeProvider theme={theme}>
           <SnackbarProvider
             maxSnack={16}
-            autoHideDuration={60000}
+            autoHideDuration={5000}
             anchorOrigin={SNACKBAR_OPTIONS}
           >
             <ErrorHandler>

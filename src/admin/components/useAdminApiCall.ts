@@ -3,9 +3,7 @@ import { ReactAdminApiContext, ReactAdminApiContextType } from "../api/context";
 import { useSnackbar } from "notistack";
 import { InProgressContext } from "./layout";
 
-export const useAdminApiCall = (
-  noBlock?: boolean
-): ReactAdminApiContextType => {
+export const useAdminApiCall = (noBlock = false): ReactAdminApiContextType => {
   const adminApi = React.useContext(ReactAdminApiContext);
   const setInProgress = React.useContext(InProgressContext);
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
@@ -16,11 +14,12 @@ export const useAdminApiCall = (
       .catch(({ message = "Unknown error" }) => {
         const key = enqueueSnackbar(message, {
           variant: "error",
+          autoHideDuration: 5 * 1000,
           onClick: () => closeSnackbar(key),
         });
       })
       .then(done, done);
     return promise;
   };
-  return React.useCallback(cb, [adminApi]);
+  return React.useCallback(cb, [adminApi, setInProgress]);
 };

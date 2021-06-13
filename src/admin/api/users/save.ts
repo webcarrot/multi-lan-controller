@@ -15,6 +15,7 @@ export const save: AdminApiFunction<User, User> = async (
     userId: user.id,
     component: "user",
     changeType: toSave.id ? "edit" : "add",
+    name: toSave.id ? toSave.name : saved.name,
     id: saved.id,
   });
   return saved;

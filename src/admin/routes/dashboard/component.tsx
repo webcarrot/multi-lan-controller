@@ -35,12 +35,20 @@ import OnlineIcon from "@material-ui/icons/Power";
 import OfflineIconIcon from "@material-ui/icons/PowerOff";
 import ActiveIcon from "@material-ui/icons/CheckBox";
 import InactiveIcon from "@material-ui/icons/CheckBoxOutlineBlank";
+import ExportIcon from "@material-ui/icons/CloudDownload";
+
 import {
   Settings,
   SettingsNotificationMessageType,
 } from "@webcarrot/multi-lan-controller/common/db/types";
 import { DeviceStatusValues } from "@webcarrot/multi-lan-controller/common/device/types";
 import { useSnackbar } from "notistack";
+
+const ExportToCsvDialog = React.lazy(() =>
+  import(
+    /* webpackChunkName: "routes/dashboard/exportToCsvDialog" */ "./exportToCsvDialog"
+  ).then(({ ExportToCsvDialog }) => ({ default: ExportToCsvDialog }))
+);
 
 const CHECKBOX_SIZE = 40;
 const ONLINE_SIZE = 40;
@@ -323,6 +331,16 @@ const Component: ComponentInt = ({
     [selected]
   );
 
+  const [showExportDialog, setShowExportDialog] = React.useState(false);
+
+  const handleExport = React.useCallback(() => {
+    setShowExportDialog(true);
+  }, []);
+
+  const handleExportDialogClose = React.useCallback(() => {
+    setShowExportDialog(false);
+  }, []);
+
   return (
     <Main>
       <Item>
@@ -391,6 +409,19 @@ const Component: ComponentInt = ({
               label="Mute sounds"
             />
           </Grid>
+          <Grid item>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleExport}
+              startIcon={<ExportIcon />}
+            >
+              Export history of actions to CSV
+            </Button>
+          </Grid>
+          {showExportDialog ? (
+            <ExportToCsvDialog onClose={handleExportDialogClose} />
+          ) : null}
         </Bottombar>
       </Item>
     </Main>

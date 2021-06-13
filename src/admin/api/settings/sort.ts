@@ -34,6 +34,7 @@ export const sort: AdminApiFunction<
     userId: user.id,
     component: "sort",
     changeType: "edit",
+    name: "",
     id: null,
   });
   return null;

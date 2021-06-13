@@ -17,15 +17,19 @@ export const actions = {
   // Devices
   "Devices/List": ew(devices.list),
   "Devices/Save": ew(devices.save),
+  "Devices/Remove": ew(devices.remove),
   // Actions
   "Actions/List": ew(_actions.list),
   "Actions/Save": ew(_actions.save),
+  "Actions/Remove": ew(_actions.remove),
   // Places
   "Places/List": ew(places.list),
   "Places/Save": ew(places.save),
+  "Places/Remove": ew(places.remove),
   // Users
   "Users/List": ew(users.list),
   "Users/Save": ew(users.save),
+  "Users/Remove": ew(users.remove),
   // Settings
   "Settings/Read": ew(settings.read),
   "Settings/Save": ew(settings.save),

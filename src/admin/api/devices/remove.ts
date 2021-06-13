@@ -1,21 +1,22 @@
-import { saveDevice } from "@webcarrot/multi-lan-controller/common/db";
+import { removeDevice } from "@webcarrot/multi-lan-controller/common/db";
 import { Device } from "@webcarrot/multi-lan-controller/common/db/types";
 import { LoggerAdminRecord } from "@webcarrot/multi-lan-controller/common/logger/types";
 import { checkIsAdmin } from "../access";
 import { AdminApiFunction } from "../types";
 
-export const save: AdminApiFunction<Device, Device> = async (
-  toSave,
+export const remove: AdminApiFunction<Device, null> = async (
+  toRemove,
   { dbAccess, user, logger }
 ) => {
   checkIsAdmin(user);
-  const saved = await saveDevice(dbAccess, toSave);
+  await removeDevice(dbAccess, toRemove);
   logger.append<LoggerAdminRecord>({
     type: "admin",
     userId: user.id,
     component: "device",
-    changeType: toSave.id ? "edit" : "add",
-    id: saved.id,
+    changeType: "remove",
+    name: toRemove.name,
+    id: toRemove.id,
   });
-  return saved;
+  return null;
 };

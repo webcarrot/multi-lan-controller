@@ -1,5 +1,7 @@
 import * as React from "react";
 import {
+  Button,
+  Grid,
   List,
   ListItem,
   ListItemAvatar,
@@ -7,7 +9,10 @@ import {
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 
-import { Toolbar } from "@webcarrot/multi-lan-controller/admin/components";
+import {
+  Bottombar,
+  Toolbar,
+} from "@webcarrot/multi-lan-controller/admin/components";
 import { Link } from "../components";
 import { Device, Place } from "@webcarrot/multi-lan-controller/common/db/types";
 import ActiveIcon from "@material-ui/icons/CheckBox";
@@ -63,6 +68,22 @@ export const ListWrapper = React.memo<{
           />
         ))}
       </List>
+      <Bottombar>
+        <Grid item xs={12}>
+          <Button
+            component={Link}
+            route="devices"
+            match={{
+              mode: "add",
+            }}
+            variant="contained"
+            color="primary"
+            fullWidth
+          >
+            Add new device
+          </Button>
+        </Grid>
+      </Bottombar>
     </>
   );
 });

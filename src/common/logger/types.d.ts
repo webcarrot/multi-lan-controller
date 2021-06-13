@@ -42,14 +42,19 @@ export type LoggerAdminRecordComponentType =
   | "place"
   | "action";
 
+export type LoggerAdminRecordChangeType = "add" | "edit" | "remove";
+
 export type LoggerAdminRecord = LoggerBaseRecord<
   "admin",
   {
     readonly userId: string;
     readonly component: LoggerAdminRecordComponentType;
+    readonly changeType: LoggerAdminRecordChangeType;
+    readonly name?: string;
     readonly id: string;
   }
 >;
+
 export type LoggerRecord =
   | LoggerStatusRecord
   | LoggerActionRecord

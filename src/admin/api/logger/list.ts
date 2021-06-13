@@ -48,25 +48,31 @@ export const list = async <T extends LoggerRecordType>(
         type: "admin",
         items: data.items.map<InternalAdminLoggerRecord>(
           (item: LoggerAdminRecord) => {
+            const changeType = item.changeType || "edit";
             let name = "";
-            switch (item.component) {
-              case "action":
-                name = getActionName(item.id);
-                break;
-              case "device":
-                name = getDeviceName(item.id);
-                break;
-              case "place":
-                name = getPlaceName(item.id);
-                break;
-              case "user":
-                name = getUserName(item.id);
-                break;
+            if (changeType === "remove") {
+              name = item.name || "";
+            } else {
+              switch (item.component) {
+                case "action":
+                  name = getActionName(item.id);
+                  break;
+                case "device":
+                  name = getDeviceName(item.id);
+                  break;
+                case "place":
+                  name = getPlaceName(item.id);
+                  break;
+                case "user":
+                  name = getUserName(item.id);
+                  break;
+              }
             }
             return {
               date: item.date,
               user: getUserName(item.userId),
               component: item.component,
+              changeType,
               name,
             };
           }

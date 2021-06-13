@@ -9,12 +9,13 @@ export const save: AdminApiFunction<Settings, Settings> = async (
   { dbAccess, user, logger }
 ) => {
   checkIsAdmin(user);
-  const newSettings = await saveSettings(dbAccess, settings);
+  const saved = await saveSettings(dbAccess, settings);
   logger.append<LoggerAdminRecord>({
     type: "admin",
     userId: user.id,
     component: "settings",
+    changeType: "edit",
     id: null,
   });
-  return newSettings;
+  return saved;
 };

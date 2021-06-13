@@ -92,3 +92,16 @@ export const login = async (
   }
   throw new Error("User not found");
 };
+
+export const remove = async (access: DbAccess, item: User): Promise<void> => {
+  let itemToRemove = parseUser(item);
+  await access.save(async (db) => {
+    if (!db.users.find(({ id }) => id === itemToRemove.id)) {
+      throw new Error("Unknown user");
+    }
+    return {
+      ...db,
+      users: db.users.filter(({ id }) => id !== itemToRemove.id),
+    };
+  });
+};

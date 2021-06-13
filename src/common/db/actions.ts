@@ -49,3 +49,26 @@ export const save = async (access: DbAccess, item: Action): Promise<Action> => {
   });
   return itemToSave;
 };
+
+export const remove = async (access: DbAccess, item: Action): Promise<void> => {
+  let itemToRemove = parseAction(item);
+  await access.save(async (db) => {
+    if (!db.actions.find(({ id }) => id === itemToRemove.id)) {
+      throw new Error("Unknown action");
+    }
+    return {
+      ...db,
+      actions: db.actions.filter(({ id }) => id !== itemToRemove.id),
+      users: db.users.map((user) => {
+        if (user.actions !== "all" && user.actions.includes(itemToRemove.id)) {
+          return {
+            ...user,
+            actions: user.actions.filter((id) => id !== itemToRemove.id),
+          };
+        } else {
+          return user;
+        }
+      }),
+    };
+  });
+};

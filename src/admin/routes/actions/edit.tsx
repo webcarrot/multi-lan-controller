@@ -19,6 +19,7 @@ import {
   useIsValid,
 } from "@webcarrot/multi-lan-controller/common/db/parse";
 import SaveIcon from "@material-ui/icons/Save";
+import RemoveIcon from "@material-ui/icons/DeleteForever";
 
 import {
   Action,
@@ -27,12 +28,13 @@ import {
   Settings,
 } from "@webcarrot/multi-lan-controller/common/db/types";
 import * as React from "react";
-import { ReactAdminApiContext } from "../../api/context";
 import {
   Bottombar,
   ItemContent,
   Toolbar,
+  useAdminApiCall,
   useAutoState,
+  useConfirm,
 } from "../../components";
 import { Mode } from "../types";
 
@@ -50,12 +52,12 @@ const OUT_NUMBERS: ReadonlyArray<DeviceOutNo> = [0, 1, 2, 3, 4];
 export const Edit = React.memo<{
   readonly mode: Mode;
   readonly item?: Action;
-  readonly onSave: (id: string, mode: Mode) => void;
+  readonly onSave: (id: string | null, mode: Mode) => void;
   readonly title: string;
   readonly settings: Settings;
 }>(({ mode, item, title, onSave, settings }) => {
   const [data, setData] = useAutoState<Action>(item || NEW_DEVICE);
-  const adminApi = React.useContext(ReactAdminApiContext);
+  const adminApi = useAdminApiCall();
   const isValid = useIsValid(data, parseAction);
 
   const handleSave = React.useCallback(() => {
@@ -63,6 +65,13 @@ export const Edit = React.memo<{
       adminApi("Actions/Save", data).then(({ id }) => onSave(id, mode));
     }
   }, [adminApi, data, onSave, mode]);
+
+  const [removeDialog, handleRemove] = useConfirm(
+    item ? `Action ${item.name} will be removed` : null,
+    React.useCallback(() => {
+      adminApi("Actions/Remove", item).then(() => onSave(null, "list"));
+    }, [adminApi, item, onSave])
+  );
 
   const handleChange = React.useCallback(
     (ev: React.ChangeEvent<HTMLInputElement>) => {
@@ -194,6 +203,19 @@ export const Edit = React.memo<{
             {mode === "add" ? "Add" : "Save"}
           </Button>
         </Grid>
+        {mode === "edit" ? (
+          <Grid item>
+            <Button
+              onClick={handleRemove}
+              variant="contained"
+              color="secondary"
+              startIcon={<RemoveIcon />}
+            >
+              Remove
+            </Button>
+            {removeDialog}
+          </Grid>
+        ) : null}
       </Bottombar>
     </>
   );

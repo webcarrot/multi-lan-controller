@@ -1,4 +1,5 @@
 import {
+  LoggerAdminRecordChangeType,
   LoggerAdminRecordComponentType,
   LoggerRecordType,
 } from "@webcarrot/multi-lan-controller/common/logger/types";
@@ -24,6 +25,7 @@ export type InternalAdminLoggerRecord = {
   readonly date: number;
   readonly user: string;
   readonly component: LoggerAdminRecordComponentType;
+  readonly changeType: LoggerAdminRecordChangeType;
   readonly name: string;
 };
 

@@ -16,15 +16,25 @@ const Component: ComponentInt = ({ output }) => {
   let item: React.ReactNode;
   const { info, navigate } = React.useContext(ReactRouteContext);
   const handleSave = React.useCallback(
-    (id: string, mode?: Mode) => {
-      navigate("users", {
-        match: {
-          mode: "edit",
-          id,
-        },
-        changeType: mode === "edit" ? ChangeType.REPLACE : ChangeType.PUSH,
-        ignoreConfirm: true,
-      });
+    (id: string | null, mode: Mode) => {
+      if (!id || mode === "list") {
+        navigate("users", {
+          match: {
+            mode: "list",
+          },
+          changeType: ChangeType.REPLACE,
+          ignoreConfirm: true,
+        });
+      } else {
+        navigate("users", {
+          match: {
+            mode: "edit",
+            id,
+          },
+          changeType: mode === "edit" ? ChangeType.REPLACE : ChangeType.PUSH,
+          ignoreConfirm: true,
+        });
+      }
     },
     [info, navigate]
   );

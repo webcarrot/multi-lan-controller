@@ -6,6 +6,7 @@ import {
   ItemContent,
   Main,
   Toolbar,
+  useAdminApiCall,
   UserContext,
 } from "../../components";
 import {
@@ -27,7 +28,6 @@ import {
   TableHead,
   TableRow,
 } from "@material-ui/core";
-import { ReactAdminApiContext } from "../../api/context";
 import { SIGNOUT_ENDPOINT } from "@webcarrot/multi-lan-controller/endpoints";
 import LogoutIcon from "@material-ui/icons/ExitToApp";
 
@@ -61,7 +61,9 @@ const Component: ComponentInt = ({
 }) => {
   const [selected, setSelected] = React.useState<ReadonlyArray<string>>([]);
   const [data, setData] = React.useState(dashboards);
-  const adminApi = React.useContext(ReactAdminApiContext);
+  const adminApi = useAdminApiCall();
+  const adminApiNoBlock = useAdminApiCall(true);
+
   const user = React.useContext(UserContext);
   const notificationsState = React.useRef<Set<string>>(null);
   const [muteSound, setMuteSound] = React.useState(false);
@@ -257,7 +259,7 @@ const Component: ComponentInt = ({
   React.useEffect(() => {
     let onData = setData;
     let fetch = () => {
-      adminApi("Dashboard/Status", null).then((data) => onData(data));
+      adminApiNoBlock("Dashboard/Status", null).then((data) => onData(data));
       timeout = setTimeout(fetch, 1000);
     };
     let timeout = setTimeout(fetch, 1000);
@@ -265,7 +267,7 @@ const Component: ComponentInt = ({
       clearTimeout(timeout);
       onData = () => {};
     };
-  }, [adminApi]);
+  }, [adminApiNoBlock]);
 
   const devicesIds = React.useMemo(
     () =>
@@ -308,24 +310,14 @@ const Component: ComponentInt = ({
         adminApi("Dashboard/Action", {
           actionId,
           devicesIds: selected,
-        }).then(
-          (status) => {
-            status.forEach(({ name, success }) => {
-              const key = enqueueSnackbar(name, {
-                variant: success ? "success" : "warning",
-                onClick: () => closeSnackbar(key),
-              });
+        }).then((status) => {
+          status.forEach(({ name, success }) => {
+            const key = enqueueSnackbar(name, {
+              variant: success ? "success" : "warning",
+              onClick: () => closeSnackbar(key),
             });
-          },
-          ({ errors }) => {
-            errors.forEach(({ message }: { message: string }) => {
-              const key = enqueueSnackbar(message, {
-                variant: "error",
-                onClick: () => closeSnackbar(key),
-              });
-            });
-          }
-        );
+          });
+        });
       }
     },
     [selected]

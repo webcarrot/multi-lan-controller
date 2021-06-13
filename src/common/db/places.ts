@@ -35,3 +35,36 @@ export const save = async (access: DbAccess, item: Place): Promise<Place> => {
   });
   return itemToSave;
 };
+
+export const remove = async (access: DbAccess, item: Place): Promise<void> => {
+  let itemToRemove = parsePlace(item);
+  await access.save(async (db) => {
+    if (!db.places.find(({ id }) => id === itemToRemove.id)) {
+      throw new Error("Unknown place");
+    }
+    return {
+      ...db,
+      places: db.places.filter(({ id }) => id !== itemToRemove.id),
+      devices: db.devices.map((device) => {
+        if (device.placeId === itemToRemove.id) {
+          return {
+            ...device,
+            placeId: null,
+          };
+        } else {
+          return device;
+        }
+      }),
+      users: db.users.map((user) => {
+        if (user.places !== "all" && user.places.includes(itemToRemove.id)) {
+          return {
+            ...user,
+            places: user.places.filter((id) => id !== itemToRemove.id),
+          };
+        } else {
+          return user;
+        }
+      }),
+    };
+  });
+};

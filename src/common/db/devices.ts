@@ -39,3 +39,16 @@ export const save = async (access: DbAccess, item: Device): Promise<Device> => {
 
 export const status = (access: DbAccess, item: Device): DeviceStatus =>
   access.status()[item.id] || null;
+
+export const remove = async (access: DbAccess, item: Device): Promise<void> => {
+  let itemToRemove = parseDevice(item);
+  await access.save(async (db) => {
+    if (!db.devices.find(({ id }) => id === itemToRemove.id)) {
+      throw new Error("Unknown device");
+    }
+    return {
+      ...db,
+      devices: db.devices.filter(({ id }) => id !== itemToRemove.id),
+    };
+  });
+};

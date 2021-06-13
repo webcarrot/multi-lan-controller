@@ -11,8 +11,12 @@ import {
 } from "@webcarrot/multi-lan-controller/common/db/types";
 import { DeviceStatusValues } from "@webcarrot/multi-lan-controller/common/device/types";
 import * as React from "react";
-import { ReactAdminApiContext } from "../../../api/context";
-import { SuspenseLoader, Toolbar, useAutoState } from "../../../components";
+import {
+  SuspenseLoader,
+  Toolbar,
+  useAdminApiCall,
+  useAutoState,
+} from "../../../components";
 
 import { DashboardPlace } from "@webcarrot/multi-lan-controller/admin/api/dashboard/types";
 const EditCols = React.lazy(() =>
@@ -44,10 +48,11 @@ export const Edit = React.memo<{
   readonly title: string;
 }>(({ settings, onSave, title, actions, dashboard }) => {
   const [data, setData] = useAutoState<Settings>(settings);
-  const adminApi = React.useContext(ReactAdminApiContext);
+  const adminApi = useAdminApiCall();
   const isValid = useIsValid(data, parseSettings);
-  const [tab, setTab] =
-    React.useState<"names" | "cols" | "sort" | "notifications">("names");
+  const [tab, setTab] = React.useState<
+    "names" | "cols" | "sort" | "notifications"
+  >("names");
 
   const handleSave = React.useCallback(() => {
     if (isValid) {

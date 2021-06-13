@@ -7,7 +7,6 @@ import {
   TableHead,
   TableRow,
 } from "@material-ui/core";
-import { ReactAdminApiContext } from "@webcarrot/multi-lan-controller/admin/api/context";
 import {
   InternalStatusLogger,
   InternalStatusLoggerRecord,
@@ -16,6 +15,7 @@ import {
 import {
   ItemContent,
   Loader,
+  useAdminApiCall,
 } from "@webcarrot/multi-lan-controller/admin/components";
 import * as React from "react";
 import { CSVLine, makeCsvLine } from "./csv";
@@ -42,7 +42,7 @@ export const Status = React.memo(() => {
     total: null,
   });
 
-  const adminApi = React.useContext(ReactAdminApiContext);
+  const adminApi = useAdminApiCall();
 
   const handleExport = React.useCallback(
     (query: InternalLoggerMeta) =>

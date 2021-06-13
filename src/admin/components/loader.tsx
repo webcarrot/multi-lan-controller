@@ -11,8 +11,8 @@ const useStyles = makeStyles({
     maxHeight: "100%",
     display: "flex",
     alignItems: "center",
-    justifyContent: "center"
-  }
+    justifyContent: "center",
+  },
 });
 
 export const Loader = React.memo(() => {
@@ -24,9 +24,13 @@ export const Loader = React.memo(() => {
   );
 });
 
-export const SuspenseLoader = ({ children }: { children: React.ReactNode }) =>
+export const SuspenseLoader = React.memo<{
+  children: React.ReactNode;
+  loader?: React.ReactElement | null;
+}>(({ children, loader = <Loader /> }) =>
   IS_BROWSER ? (
-    <React.Suspense fallback={<Loader />}>{children}</React.Suspense>
+    <React.Suspense fallback={loader}>{children}</React.Suspense>
   ) : (
-    <Loader />
-  );
+    loader
+  )
+);

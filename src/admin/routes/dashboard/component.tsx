@@ -5,6 +5,7 @@ import {
   Item,
   ItemContent,
   Main,
+  SuspenseLoader,
   Toolbar,
   useAdminApiCall,
   UserContext,
@@ -420,7 +421,9 @@ const Component: ComponentInt = ({
             </Button>
           </Grid>
           {showExportDialog ? (
-            <ExportToCsvDialog onClose={handleExportDialogClose} />
+            <SuspenseLoader loader={null}>
+              <ExportToCsvDialog onClose={handleExportDialogClose} />
+            </SuspenseLoader>
           ) : null}
         </Bottombar>
       </Item>

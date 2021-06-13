@@ -7,6 +7,8 @@ import {
   DialogContentText,
 } from "@material-ui/core";
 import * as React from "react";
+import ConfirmIcon from "@material-ui/icons/Done";
+import CancelIcon from "@material-ui/icons/Cancel";
 
 export const useConfirm = (
   message: string,
@@ -28,10 +30,20 @@ export const useConfirm = (
           <DialogContentText>{message}</DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleAbort} color="secondary" variant="contained">
+          <Button
+            onClick={handleAbort}
+            color="secondary"
+            variant="contained"
+            startIcon={<CancelIcon />}
+          >
             Cancel
           </Button>
-          <Button onClick={handleSave} color="primary" variant="contained">
+          <Button
+            onClick={handleSave}
+            color="primary"
+            variant="contained"
+            startIcon={<ConfirmIcon />}
+          >
             Confirm
           </Button>
         </DialogActions>

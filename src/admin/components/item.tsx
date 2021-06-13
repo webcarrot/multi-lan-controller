@@ -3,6 +3,7 @@ import { makeStyles } from "@material-ui/styles";
 import { SuspenseLoader } from "./loader";
 import { Button, Theme } from "@material-ui/core";
 import { Link } from "../routes/components";
+import AddIcon from "@material-ui/icons/Add";
 
 const useStyles = makeStyles({
   root: {
@@ -65,6 +66,7 @@ export const ItemAdd: typeof Link = React.memo(({ children, route, match }) => {
         match={match}
         variant="contained"
         color="primary"
+        startIcon={<AddIcon />}
       >
         {children}
       </Button>

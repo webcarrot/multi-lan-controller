@@ -14,6 +14,7 @@ export const actions = {
   "Dashboard/Status": ew(dashboard.status),
   "Dashboard/Actions": ew(dashboard.actions),
   "Dashboard/Action": ew(dashboard.action),
+  "Dashboard/Logs": ew(dashboard.logs),
   // Devices
   "Devices/List": ew(devices.list),
   "Devices/Save": ew(devices.save),

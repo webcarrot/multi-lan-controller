@@ -18,7 +18,10 @@ import {
   useAdminApiCall,
 } from "@webcarrot/multi-lan-controller/admin/components";
 import * as React from "react";
-import { CSVLine, makeCsvLine } from "./csv";
+import {
+  CSVLine,
+  makeCsvLine,
+} from "@webcarrot/multi-lan-controller/common/utils/csv";
 import { Footer } from "./footer";
 
 const formatToCsv = (items: ReadonlyArray<InternalStatusLoggerRecord>) =>

@@ -18,16 +18,20 @@ import {
   useAdminApiCall,
 } from "@webcarrot/multi-lan-controller/admin/components";
 import * as React from "react";
-import { CSVLine, makeCsvLine } from "./csv";
+import {
+  CSVLine,
+  makeCsvLine,
+} from "@webcarrot/multi-lan-controller/common/utils/csv";
 import { Footer } from "./footer";
 
 const formatToCsv = (items: ReadonlyArray<InternalAdminLoggerRecord>) =>
-  [["date", "user", "component", "name"] as CSVLine]
+  [["date", "user", "component", "change type", "name"] as CSVLine]
     .concat(
-      items.map<CSVLine>(({ date, user, component, name }) => [
+      items.map<CSVLine>(({ date, user, component, changeType, name }) => [
         new Date(date).toISOString(),
         user,
         component,
+        changeType,
         name,
       ])
     )
@@ -80,20 +84,25 @@ export const Admin = React.memo(() => {
                 <TableCell>Date</TableCell>
                 <TableCell>User</TableCell>
                 <TableCell>Component</TableCell>
+                <TableCell>Change type</TableCell>
+
                 <TableCell>Name</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {data.items.map(({ date, user, component, name }, key) => (
-                <TableRow key={`${key}-${date}`}>
-                  <TableCell align="left">
-                    {new Date(date).toLocaleString()}
-                  </TableCell>
-                  <TableCell align="left">{user}</TableCell>
-                  <TableCell align="left">{component}</TableCell>
-                  <TableCell align="left">{name}</TableCell>
-                </TableRow>
-              ))}
+              {data.items.map(
+                ({ date, user, component, changeType, name }, key) => (
+                  <TableRow key={`${key}-${date}`}>
+                    <TableCell align="left">
+                      {new Date(date).toLocaleString()}
+                    </TableCell>
+                    <TableCell align="left">{user}</TableCell>
+                    <TableCell align="left">{component}</TableCell>
+                    <TableCell align="left">{changeType}</TableCell>
+                    <TableCell align="left">{name}</TableCell>
+                  </TableRow>
+                )
+              )}
             </TableBody>
           </Table>
         </TableContainer>

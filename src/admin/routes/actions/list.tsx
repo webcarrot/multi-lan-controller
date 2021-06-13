@@ -17,6 +17,7 @@ import { Link } from "../components";
 import { Action } from "@webcarrot/multi-lan-controller/common/db/types";
 import ActiveIcon from "@material-ui/icons/CheckBox";
 import InactiveIcon from "@material-ui/icons/CheckBoxOutlineBlank";
+import AddIcon from "@material-ui/icons/Add";
 
 const useStyles = makeStyles({
   list: {
@@ -74,6 +75,7 @@ export const ListWrapper = React.memo<{
             variant="contained"
             color="primary"
             fullWidth
+            startIcon={<AddIcon />}
           >
             Add new action
           </Button>

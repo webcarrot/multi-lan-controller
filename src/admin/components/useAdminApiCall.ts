@@ -9,17 +9,14 @@ export const useAdminApiCall = (
   const adminApi = React.useContext(ReactAdminApiContext);
   const setInProgress = React.useContext(InProgressContext);
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
-
   const cb: ReactAdminApiContextType = (method, payload, batch) => {
     const done = noBlock ? () => {} : setInProgress();
     const promise = adminApi(method, payload, batch);
     promise
-      .catch(({ errors = [{ message: "Unknown error" }] }) => {
-        errors.forEach(({ message }: { message: string }) => {
-          const key = enqueueSnackbar(message, {
-            variant: "error",
-            onClick: () => closeSnackbar(key),
-          });
+      .catch(({ message = "Unknown error" }) => {
+        const key = enqueueSnackbar(message, {
+          variant: "error",
+          onClick: () => closeSnackbar(key),
         });
       })
       .then(done, done);

@@ -1,16 +1,10 @@
 export const prepareApiError = (
   err: Error
 ): {
-  errors: ReadonlyArray<{ message: string }>;
-} => {
-  return {
-    errors: [
-      {
-        message: err.message,
-      },
-    ],
-  };
-};
+  readonly message: string;
+} => ({
+  message: (err && err.message) || "Unknown error",
+});
 
 export const apiErrorHandlerWrapper = <
   T extends (...args: any[]) => Promise<any>

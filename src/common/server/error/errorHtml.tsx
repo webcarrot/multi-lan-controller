@@ -37,11 +37,11 @@ div {
 
 const Html = ({
   url,
-  messages,
+  message,
   retry,
 }: {
   url: string;
-  messages: string[];
+  message: string;
   retry: boolean;
 }) => (
   <html>
@@ -54,11 +54,7 @@ const Html = ({
     <body>
       <div>
         {retry ? (
-          messages.map((message, no) => (
-            <p key={no} className="error">
-              {message}
-            </p>
-          ))
+          <p className="error">{message}</p>
         ) : (
           <p className="error">Internal Server Error</p>
         )}
@@ -69,9 +65,9 @@ const Html = ({
 
 export const getErrorHtml = async (
   url: string,
-  messages: string[],
+  message: string,
   retry: boolean
 ): Promise<string> =>
   `<!DOCTYPE html>${await render(
-    <Html url={url} messages={messages} retry={retry} />
+    <Html url={url} message={message} retry={retry} />
   )}`;

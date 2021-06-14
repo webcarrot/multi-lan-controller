@@ -24,6 +24,7 @@ const InputLabelProps = {
 };
 
 const formatToCsv = (items: ReadonlyArray<InternalActionLoggerRecord>) =>
+  "\uFEFF" +
   [["date", "success", "user", "action", "device", "place"] as CSVLine]
     .concat(
       items.map<CSVLine>(({ date, user, action, device, place, success }) => [

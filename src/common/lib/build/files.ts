@@ -6,15 +6,13 @@ import { exist, info } from "./utils";
 import { BUILD_DIR } from "./constants";
 import { getManifests } from "./manifest";
 
-export type Compression = "none" | "gzip" | "lzma" | "br";
-type Extension = "gz" | "xz" | "br";
+export type Compression = "none" | "gzip" ;
+type Extension = "gz";
 
-const COMPRESSION_METHODS: Array<Compression> = ["br", "lzma", "gzip", "none"];
+const COMPRESSION_METHODS: Array<Compression> = ["gzip", "none"];
 
 const COMPRESSION_METHODS_EXTS: Array<[Extension, Compression]> = [
   ["gz", "gzip"],
-  ["xz", "lzma"],
-  ["br", "br"],
 ];
 
 class FileInfo {

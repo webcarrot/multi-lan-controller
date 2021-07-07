@@ -92,7 +92,7 @@ export const Footer = React.memo<{
           rowsPerPage={rowsPerPage}
           page={page}
           labelRowsPerPage="Per page"
-          onChangePage={handleChangePage}
+          onPageChange={handleChangePage}
           onChangeRowsPerPage={handleChangeRowsPerPage}
         />
       </Grid>

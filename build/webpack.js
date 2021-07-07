@@ -6,8 +6,6 @@ const CompressionPlugin = require("compression-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const { DefinePlugin } = require("webpack");
 const { gzip: zopfliGzip } = require("@gfx/zopfli");
-const lzma = require("lzma-native");
-const { brotliCompress } = require("zlib");
 
 let compressPromise = Promise.resolve();
 
@@ -19,53 +17,6 @@ const gzipContent = (buf, _, callback) => {
           buf,
           {
             numiterations: 15,
-          },
-          (...info) => {
-            resolve();
-            callback(...info);
-          }
-        );
-      })
-  );
-};
-
-const xzContent = (buf, _, callback) => {
-  compressPromise = compressPromise.then(
-    () =>
-      new Promise((resolve) => {
-        lzma
-          .compress(buf, {
-            preset: 8,
-          })
-          .then(
-            (data) => {
-              resolve();
-              callback(null, data);
-            },
-            (err) => {
-              resolve();
-              callback(err);
-            }
-          );
-      })
-  );
-};
-
-const brContent = (buf, _, callback) => {
-  compressPromise = compressPromise.then(
-    () =>
-      new Promise((resolve) => {
-        brotliCompress(
-          buf,
-          {
-            mode: 0,
-            quality: 11,
-            lgwin: 22,
-            lgblock: 0,
-            enable_dictionary: true,
-            enable_transforms: false,
-            greedy_block_split: false,
-            enable_context_modeling: false,
           },
           (...info) => {
             resolve();
@@ -122,22 +73,6 @@ module.exports = (
         include: /\.(js|css|svg|json|xml|eot|ttf)$/,
         exclude: /manifest/,
         threshold: 1000,
-        minRatio: 0.8,
-      }),
-      new CompressionPlugin({
-        filename: "[path][base].xz",
-        algorithm: xzContent,
-        include: /\.(js|css|svg|json|xml|eot|ttf)$/,
-        exclude: /manifest/,
-        threshold: 0,
-        minRatio: 0.8,
-      }),
-      new CompressionPlugin({
-        filename: "[path][base].br",
-        algorithm: brContent,
-        include: /\.(js|css|svg|json|xml|eot|ttf)$/,
-        exclude: /manifest/,
-        threshold: 0,
         minRatio: 0.8,
       })
     );

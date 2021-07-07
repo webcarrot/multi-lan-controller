@@ -1,6 +1,6 @@
-import createMuiTheme from "@material-ui/core/styles/createMuiTheme";
+import createTheme from "@material-ui/core/styles/createTheme";
 
-export default createMuiTheme({
+export default createTheme({
   palette: {
     type: "dark",
   },

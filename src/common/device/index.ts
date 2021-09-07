@@ -29,9 +29,9 @@ const getConfig = (device: Device): AxiosRequestConfig => {
 };
 
 const isTrue = (v: string[], reverseOut: boolean): boolean =>
-  v[0] === (reverseOut ? "1" : "0");
-const string = (v: string[]): string => v[0];
-const numeric = (v: string[]): number => parseInt(v[0]);
+  v ? v[0] === (reverseOut ? "1" : "0") : false;
+const string = (v: string[]): string => (v ? v[0] : "");
+const numeric = (v: string[]): number => (v ? parseInt(v[0]) : 0);
 
 export const getDeviceStatus = async (
   device: Device,

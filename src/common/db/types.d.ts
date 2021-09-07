@@ -90,6 +90,7 @@ export type Settings = {
   readonly cols: ReadonlyArray<DeviceStatusValues>;
   readonly notifications: ReadonlyArray<SettingsNotification>;
   readonly reverseOut: boolean;
+  readonly statsInterval: number;
 };
 
 export type Db = {

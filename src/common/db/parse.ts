@@ -202,6 +202,7 @@ export const parseSettings = shape<Settings>({
   cols: array(oneOf(validSettingsKeys.map((key) => eq(key))), { default: [] }),
   reverseOut: boolean({ default: true }),
   notifications: array(parseSettingsNotification, { default: [] }),
+  statsInterval: number({ default: 5000, convert: true }),
 });
 
 export const useIsValid = <T>(data: T, validator: Parser<T>) =>

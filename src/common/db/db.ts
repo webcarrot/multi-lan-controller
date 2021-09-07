@@ -3,7 +3,7 @@ import { Settings } from "http2";
 import { join } from "path";
 import { getDeviceStatus } from "../device";
 import { DeviceStatus, DeviceStatusValues } from "../device/types";
-import { Logger, LoggerStatusRecord } from "../logger/types";
+import { Logger, LoggerStatsRecord, LoggerStatusRecord } from "../logger/types";
 import {
   parseAction,
   parseDevice,
@@ -30,6 +30,7 @@ const EMPTY_DB: Db = {
     cols: [],
     notifications: [],
     reverseOut: true,
+    statsInterval: 5000,
   },
 };
 
@@ -156,15 +157,27 @@ export const makeDbAccess = async (
 
   const CURRENT_STATUS: { [key: string]: DeviceStatus } = {};
   const CURRENT_STATUS_CHECK = new Map<string, number>();
+  const SAVE_STATS = new Map<string, number>();
 
   const NO_CONNECTION = new Set<string>();
 
-  let reverseOut = (await read()).settings.reverseOut;
+  let { reverseOut, statsInterval } = (await read()).settings;
 
   const watchDeviceStatus = async (device: Device) => {
     CURRENT_STATUS_CHECK.set(device.id, null);
     try {
       const status = await getDeviceStatus(device, reverseOut);
+      if (
+        statsInterval > 0 &&
+        (!SAVE_STATS.has(device.id) || SAVE_STATS.get(device.id) < Date.now())
+      ) {
+        logger.append<LoggerStatsRecord>({
+          type: "stats",
+          deviceId: device.id,
+          status,
+        });
+        SAVE_STATS.set(device.id, Date.now() + statsInterval);
+      }
       if (
         !CURRENT_STATUS[device.id] ||
         CURRENT_STATUS[device.id].out0 !== status.out0 ||
@@ -200,9 +213,9 @@ export const makeDbAccess = async (
         });
         NO_CONNECTION.add(device.id);
         console.error(
-          `[${new Date().toISOString()}] ERROR: ${err.message} ${
-            device.name
-          } (${device.url})`
+          `[${new Date().toISOString()}] ERROR: ${
+            /timeout/.test(err.message) ? "Offline" : err.message
+          } ${device.name} (${device.url})`
         );
       }
       CURRENT_STATUS[device.id] = null;
@@ -218,6 +231,7 @@ export const makeDbAccess = async (
   const getStatus = async () => {
     const db = await read();
     reverseOut = db.settings.reverseOut;
+    statsInterval = db.settings.statsInterval;
     const devices = db.devices.filter(({ isActive }) => isActive);
     devices
       .filter(({ id }) => !CURRENT_STATUS_CHECK.has(id))

@@ -19,6 +19,13 @@ import {
 } from "../../../components";
 
 import { DashboardPlace } from "@webcarrot/multi-lan-controller/admin/api/dashboard/types";
+
+const EditBasic = React.lazy(() =>
+  import(/* webpackChunkName: "routes/settings/edit/basic" */ "./basic").then(
+    ({ EditBasic }) => ({ default: EditBasic })
+  )
+);
+
 const EditCols = React.lazy(() =>
   import(/* webpackChunkName: "routes/settings/edit/cols" */ "./cols").then(
     ({ EditCols }) => ({ default: EditCols })
@@ -34,6 +41,7 @@ const EditNames = React.lazy(() =>
     ({ EditNames }) => ({ default: EditNames })
   )
 );
+
 const EditNotifications = React.lazy(() =>
   import(
     /* webpackChunkName: "routes/settings/edit/notifications" */ "./notifications"
@@ -51,8 +59,8 @@ export const Edit = React.memo<{
   const adminApi = useAdminApiCall();
   const isValid = useIsValid(data, parseSettings);
   const [tab, setTab] = React.useState<
-    "names" | "cols" | "sort" | "notifications"
-  >("names");
+    "names" | "cols" | "sort" | "notifications" | "basic"
+  >("basic");
 
   const handleSave = React.useCallback(() => {
     if (isValid) {
@@ -83,19 +91,33 @@ export const Edit = React.memo<{
 
   const handleNamesChange = React.useCallback(
     (ev: React.ChangeEvent<HTMLInputElement>) => {
-      if (ev.target.name === "reverseOut") {
-        const value = ev.target.checked;
+      const name = ev.target.name as DeviceStatusValues;
+      const value = ev.target.value;
+      if (validSettingsKeys.includes(name)) {
         setData((data) => ({
           ...data,
-          reverseOut: value,
+          [name]: value,
         }));
-      } else {
-        const name = ev.target.name as DeviceStatusValues;
-        const value = ev.target.value;
-        if (validSettingsKeys.includes(name)) {
+      }
+    },
+    [setData]
+  );
+
+  const handleBasicChange = React.useCallback(
+    (ev: React.ChangeEvent<HTMLInputElement>) => {
+      switch (ev.target.name) {
+        case "reverseOut": {
+          const value = ev.target.checked;
           setData((data) => ({
             ...data,
-            [name]: value,
+            reverseOut: value,
+          }));
+        }
+        case "statsInterval": {
+          const value = ev.target.value;
+          setData((data) => ({
+            ...data,
+            statsInterval: parseInt(value) || 0,
           }));
         }
       }
@@ -130,11 +152,21 @@ export const Edit = React.memo<{
         />
       );
       break;
-    default:
+    case "names":
       content = (
         <EditNames
           data={data}
           onChange={handleNamesChange}
+          onSave={handleSave}
+          isValid={isValid}
+        />
+      );
+      break;
+    default:
+      content = (
+        <EditBasic
+          data={data}
+          onChange={handleBasicChange}
           onSave={handleSave}
           isValid={isValid}
         />
@@ -150,6 +182,7 @@ export const Edit = React.memo<{
           onChange={(_, value) => setTab(value)}
           variant="standard"
         >
+          <Tab value="basic" label="Basic" />
           <Tab value="names" label="Names" />
           <Tab value="sort" label="Sort" />
           <Tab value="cols" label="Cols" />

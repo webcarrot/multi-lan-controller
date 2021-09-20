@@ -5,7 +5,7 @@ import { Component as ComponentInt } from "./types";
 const Component: ComponentInt = ({}) => {
   return (
     <Main>
-      <Item></Item>
+      <Item>TODO</Item>
     </Main>
   );
 };

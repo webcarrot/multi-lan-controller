@@ -117,7 +117,7 @@ export const Edit = React.memo<{
               fullWidth
             />
           </Grid>
-          <Grid item xs={6}>
+          <Grid item xs={3}>
             <FormControl fullWidth>
               <InputLabel id="version">Version</InputLabel>
               <Select

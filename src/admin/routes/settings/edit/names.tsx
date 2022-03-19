@@ -1,13 +1,4 @@
-import {
-  Button,
-  Checkbox,
-  FormControlLabel,
-  FormHelperText,
-  Grid,
-  Paper,
-  TextField,
-  Typography,
-} from "@material-ui/core";
+import { Button, Grid, Paper, TextField, Typography } from "@material-ui/core";
 import SaveIcon from "@material-ui/icons/Save";
 
 import {
@@ -32,31 +23,6 @@ export const EditNames = React.memo<{
     <>
       <ItemContent>
         <Typography variant="h6">Basic settings</Typography>
-        <Grid
-          container
-          spacing={2}
-          style={{
-            margin: "8px 0 16px 0",
-          }}
-          component={Paper}
-          variant="outlined"
-        >
-          <Grid item xs={12}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={data.reverseOut}
-                  onChange={onChange}
-                  name="reverseOut"
-                />
-              }
-              label="Reverse out state"
-            />
-            <FormHelperText variant="outlined">
-              This also affect actions
-            </FormHelperText>
-          </Grid>
-        </Grid>
         <EditNamesGroup
           data={data}
           onChange={onChange}

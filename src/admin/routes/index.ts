@@ -8,6 +8,7 @@ import { route as devices } from "./devices";
 import { route as settings } from "./settings";
 import { route as actions } from "./actions";
 import { route as logger } from "./logger";
+import { route as stats } from "./stats";
 
 export const routes: Routes = {
   dashboard,
@@ -17,5 +18,6 @@ export const routes: Routes = {
   settings,
   actions,
   logger,
+  stats,
   notFound,
 };

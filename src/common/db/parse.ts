@@ -9,6 +9,7 @@ import {
   eq,
   oneOf,
   Parser,
+  emitValue,
 } from "@webcarrot/parse";
 import { useMemo } from "react";
 import { validate } from "uuid";
@@ -75,6 +76,9 @@ export const parseDevice = shape<Device>({
   placeId: parseOptionalId,
   url: string({ minLength: 10 }),
   isActive: boolean({ default: true }),
+  version: number({ convert: true, default: 2 })
+    .catch(emitValue(2))
+    .then(oneOf([eq(1), eq(2), eq(3)], { default: 2 })),
 });
 
 export const parseActionChange = shape<ActionChange>({
@@ -202,6 +206,7 @@ export const parseSettings = shape<Settings>({
   cols: array(oneOf(validSettingsKeys.map((key) => eq(key))), { default: [] }),
   reverseOut: boolean({ default: true }),
   notifications: array(parseSettingsNotification, { default: [] }),
+  statsInterval: number({ default: 5000, convert: true }),
 });
 
 export const useIsValid = <T>(data: T, validator: Parser<T>) =>

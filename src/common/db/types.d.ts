@@ -32,6 +32,7 @@ export type Device = {
   readonly url: string;
   readonly name: string;
   readonly isActive: boolean;
+  readonly version: 1 | 2 | 3;
 };
 
 export type ActionChangeType = "on" | "off" | "toggle";
@@ -90,6 +91,7 @@ export type Settings = {
   readonly cols: ReadonlyArray<DeviceStatusValues>;
   readonly notifications: ReadonlyArray<SettingsNotification>;
   readonly reverseOut: boolean;
+  readonly statsInterval: number;
 };
 
 export type Db = {

@@ -1,6 +1,6 @@
 import { DeviceStatus } from "../device/types";
 
-export type LoggerRecordType = "status" | "action" | "auth" | "admin";
+export type LoggerRecordType = "status" | "action" | "auth" | "admin" | "stats";
 
 type LoggerBaseRecord<T extends LoggerRecordType, E = {}> = {
   readonly type: T;
@@ -55,20 +55,39 @@ export type LoggerAdminRecord = LoggerBaseRecord<
   }
 >;
 
+export type LoggerStatsRecord = LoggerBaseRecord<
+  "stats",
+  {
+    readonly deviceId: string;
+    readonly status: DeviceStatus;
+  }
+>;
+
 export type LoggerRecord =
   | LoggerStatusRecord
   | LoggerActionRecord
   | LoggerAuthRecord
-  | LoggerAdminRecord;
+  | LoggerAdminRecord
+  | LoggerStatsRecord;
 
-export type LoggerInfoQuery<T extends LoggerRecordType> = {
-  readonly fromDate?: string;
-  readonly toDate?: string;
-  readonly offset?: number;
-  readonly limit?: number;
-  readonly ids?: ReadonlyArray<string>;
-  readonly type: T;
-};
+export type LoggerInfoQuery<T extends LoggerRecordType> =
+  | {
+      readonly fromDate?: string;
+      readonly toDate?: string;
+      readonly offset?: number;
+      readonly limit?: number;
+      readonly ids?: ReadonlyArray<string>;
+      readonly type: Exclude<T, "stats">;
+    }
+  | {
+      readonly fromDate?: string;
+      readonly toDate?: string;
+      readonly offset?: number;
+      readonly limit?: number;
+      readonly ids?: ReadonlyArray<string>;
+      readonly type: "stats";
+      readonly statsId: string;
+    };
 
 export type LoggerInfo<T extends LoggerRecord> = {
   readonly items: ReadonlyArray<T>;

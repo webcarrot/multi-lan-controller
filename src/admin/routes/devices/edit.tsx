@@ -34,6 +34,7 @@ const NEW_DEVICE: Device = {
   url: "",
   placeId: null,
   isActive: true,
+  version: 2,
 };
 
 export const Edit = React.memo<{
@@ -73,6 +74,14 @@ export const Edit = React.memo<{
           }));
           break;
         }
+        case "version": {
+          const value = parseInt(ev.target.value) as 1 | 2 | 3;
+          setData((data) => ({
+            ...data,
+            version: value,
+          }));
+          break;
+        }
         case "isActive": {
           const value = ev.target.checked;
           setData((data) => ({
@@ -99,7 +108,7 @@ export const Edit = React.memo<{
       <Toolbar title={title} />
       <ItemContent>
         <Grid container spacing={2} alignItems="center">
-          <Grid item xs={8}>
+          <Grid item xs={6}>
             <TextField
               label="Device name"
               name="name"
@@ -108,7 +117,23 @@ export const Edit = React.memo<{
               fullWidth
             />
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={3}>
+            <FormControl fullWidth>
+              <InputLabel id="version">Version</InputLabel>
+              <Select
+                labelId="version"
+                id="version-select"
+                value={data.version}
+                name="version"
+                onChange={handleChange}
+              >
+                <MenuItem value={1}>1</MenuItem>
+                <MenuItem value={2}>2</MenuItem>
+                <MenuItem value={3}>3</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={3}>
             <FormControlLabel
               control={
                 <Checkbox
